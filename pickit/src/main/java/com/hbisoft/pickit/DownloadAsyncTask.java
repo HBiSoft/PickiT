@@ -27,12 +27,10 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     private InputStream is = null;
     private String extension;
 
-
     DownloadAsyncTask(Uri uri, Context context, CallBackTask callback) {
         this.mUri = uri;
         mContext = new WeakReference<>(context);
         this.callback = callback;
-
     }
 
     @Override
@@ -66,7 +64,6 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
         File file = null;
 
         try {
-
             assert returnCursor != null;
             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
             returnCursor.moveToFirst();
@@ -90,7 +87,6 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
                     fos.write(data, 0, count);
                 }
             }
-
             fos.flush();
             fos.close();
 

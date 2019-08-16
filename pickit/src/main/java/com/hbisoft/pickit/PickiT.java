@@ -25,13 +25,13 @@ public class PickiT implements CallBackTask{
                 downloadFile(uri);
 
             }else {
-                returnedPath = FileUtils.getRealPathFromURI_API19(context, uri);
+                returnedPath = Utils.getRealPathFromURI_API19(context, uri);
                 pickiTCallbacks.PickiTonCompleteListener(returnedPath, false);
             }
 
         }else{
             //Todo: Test API <19
-            returnedPath = FileUtils.getRealPathFromURI_BelowAPI19(context, uri);
+            returnedPath = Utils.getRealPathFromURI_BelowAPI19(context, uri);
             pickiTCallbacks.PickiTonCompleteListener(returnedPath, false);
         }
 
