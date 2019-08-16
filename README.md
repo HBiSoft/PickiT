@@ -3,7 +3,11 @@ An Android library that returns real paths from Uri's
 
 ![pickiticon](https://user-images.githubusercontent.com/35602540/63160498-37d88780-c01e-11e9-95f7-d6fac239f53b.png)
 
+</br>
 
+Download the demo app [here](https://github.com/HBiSoft/PickiT/releases/download/0.1.0/PickiT-Example.apk)
+
+</br>
 
 Add Pickit to your project:
 ---
