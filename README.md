@@ -5,7 +5,14 @@ An Android library that returns real paths from Uri's
 
 </br>
 
+
+
+Demo screenshot:
+---
+
 Download the demo app [here](https://github.com/HBiSoft/PickiT/releases/download/0.1.0/PickiT-Example.apk)
+
+![pickiTDemo](https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png)
 
 </br>
 
