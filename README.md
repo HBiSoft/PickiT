@@ -77,6 +77,36 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 }
 ```
+
+Dropbox/Google Drive/OneDrive files:
+---
+    
+If the selected file was from Dropbox/Google Drive or OneDrive, it will then be copied/created in</br> 
+`Internal Storage - Android - data - your.package.name - files - Temp`
+
+It is your responsibility to delete the file by calling:
+
+```java
+pickiT.deleteTemporaryFile();
+```
+This can be done in `onBackPressed` and `onDestroy`, as shown below:
+
+```java
+@Override
+public void onBackPressed() {
+    pickiT.deleteTemporaryFile();
+    super.onBackPressed();
+}
+
+@Override
+public void onDestroy() {
+    super.onDestroy();
+    if (!isChangingConfigurations()) {
+        pickiT.deleteTemporaryFile();
+    }
+}
+```
+
     
 Callback methods
 ---
@@ -100,35 +130,6 @@ public void PickiTonProgressUpdate(int progress) {
 @Override
 public void PickiTonCompleteListener(String path, boolean wasDriveFile) {
     //Dismiss dialog and return the path
-}
-```
-
-Dropbox/Google Drive/OneDrive files:
----
-    
-If the file selected was from Dropbox/Google Drive or OneDrive, it will be copied/created in</br> 
-`Internal Storage - Android - data - your.package.name - files - Temp`
-
-It is your responsibility to delete the file by calling:
-
-```java
-pickiT.deleteTemporaryFile();
-```
-This can be done in `onBackPressed` and `onDestroy`, as shown below:
-
-```java
-@Override
-public void onBackPressed() {
-    pickiT.deleteTemporaryFile();
-    super.onBackPressed();
-}
-
-@Override
-public void onDestroy() {
-    super.onDestroy();
-    if (!isChangingConfigurations()) {
-        pickiT.deleteTemporaryFile();
-    }
 }
 ```
  
