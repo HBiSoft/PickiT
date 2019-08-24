@@ -10,7 +10,7 @@ An Android library that returns real paths from Uri's
 Demo screenshot:
 ---
 
-Download the demo app [here](https://github.com/HBiSoft/PickiT/releases/download/0.1.0/PickiT-Example.apk)
+Download the demo app [here](https://github.com/HBiSoft/PickiT/releases/download/0.1.2/PickiTdemo.apk)
 
 ![pickiTDemo](https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png)
 
@@ -34,7 +34,7 @@ Then, add the dependency, in your app level build.gradle:
 
 ```java
 dependencies {
-    implementation 'com.github.HBiSoft:PickiT:0.1.1'
+    implementation 'com.github.HBiSoft:PickiT:0.1.2'
 }
 ```
     
