@@ -14,6 +14,10 @@ import android.provider.MediaStore;
 import java.io.File;
 
 public class Utils {
+    private static String reason;
+    static String errorReason(){
+        return reason;
+    }
 
     @SuppressLint("NewApi")
     static String getRealPathFromURI_API19(final Context context, final Uri uri) {
@@ -21,6 +25,7 @@ public class Utils {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
+
             if (isExternalStorageDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
@@ -49,11 +54,8 @@ public class Utils {
                     if (file.exists())
                         return id;
                 }
-
                 final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
                 return getDataColumn(context, contentUri, null, null);
-
-
             }
             else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
@@ -78,9 +80,9 @@ public class Utils {
             }
         }
         else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            if (isGooglePhotosUri(uri))
+            if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
-
+            }
             return getDataColumn(context, uri, null, null);
         }
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -101,23 +103,18 @@ public class Utils {
         return result;
     }
 
-
-    private static String getDataColumn(Context context, Uri uri, String selection,
-                                        String[] selectionArgs) {
-
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
-
+        final String[] projection = {column};
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
+        }catch (Exception e) {
+            reason = e.getMessage();
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -127,12 +124,8 @@ public class Utils {
 
 
     private static String getFilePath(Context context, Uri uri) {
-
         Cursor cursor = null;
-        final String[] projection = {
-                MediaStore.MediaColumns.DISPLAY_NAME
-        };
-
+        final String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
         try {
             cursor = context.getContentResolver().query(uri, projection, null, null,
                     null);
@@ -140,6 +133,8 @@ public class Utils {
                 final int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
                 return cursor.getString(index);
             }
+        }catch (Exception e) {
+            reason = e.getMessage();
         } finally {
             if (cursor != null)
                 cursor.close();

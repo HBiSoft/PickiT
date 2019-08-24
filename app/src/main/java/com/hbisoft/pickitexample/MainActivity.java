@@ -195,7 +195,8 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     @Override
-    public void PickiTonCompleteListener(String path, boolean wasDriveFile) {
+    public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasSuccessful, String reason) {
+
         if (mdialog != null && mdialog.isShowing()) {
             mdialog.cancel();
         }
@@ -207,14 +208,21 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
             showLongToast("Local file was selected");
         }
 
-        //  Set returned path to TextView
-        pickitTv.setText(path);
+        //  Chick if it was successful
+        if (wasSuccessful) {
+            //  Set returned path to TextView
+            pickitTv.setText(path);
 
-        //  Make TextView's visible
-        originalTitle.setVisibility(View.VISIBLE);
-        originalTv.setVisibility(View.VISIBLE);
-        pickitTitle.setVisibility(View.VISIBLE);
-        pickitTv.setVisibility(View.VISIBLE);
+            //  Make TextView's visible
+            originalTitle.setVisibility(View.VISIBLE);
+            originalTv.setVisibility(View.VISIBLE);
+            pickitTitle.setVisibility(View.VISIBLE);
+            pickitTv.setVisibility(View.VISIBLE);
+        }else {
+            showLongToast("Error, please see the log..");
+            pickitTv.setVisibility(View.VISIBLE);
+            pickitTv.setText(reason);
+        }
     }
 
 

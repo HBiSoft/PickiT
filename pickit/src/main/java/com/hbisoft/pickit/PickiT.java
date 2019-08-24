@@ -23,16 +23,18 @@ public class PickiT implements CallBackTask{
             if (isOneDrive(uri)||isDropBox(uri)||isGoogleDrive(uri)){
                 isDriveFile = true;
                 downloadFile(uri);
-
             }else {
                 returnedPath = Utils.getRealPathFromURI_API19(context, uri);
-                pickiTCallbacks.PickiTonCompleteListener(returnedPath, false);
+                if (returnedPath == null || returnedPath.equals("")){
+                    pickiTCallbacks.PickiTonCompleteListener(returnedPath, false, false, Utils.errorReason());
+                }else {
+                    pickiTCallbacks.PickiTonCompleteListener(returnedPath, false, true, "");
+                }
             }
-
         }else{
             //Todo: Test API <19
             returnedPath = Utils.getRealPathFromURI_BelowAPI19(context, uri);
-            pickiTCallbacks.PickiTonCompleteListener(returnedPath, false);
+            pickiTCallbacks.PickiTonCompleteListener(returnedPath, false, true, "");
         }
 
     }
@@ -74,9 +76,7 @@ public class PickiT implements CallBackTask{
     @Override
     public void PickiTonPostExecute(String path, boolean wasDriveFile) {
         if (isDriveFile){
-            pickiTCallbacks.PickiTonCompleteListener(path, true);
-        }else {
-            pickiTCallbacks.PickiTonCompleteListener(returnedPath, false);
+            pickiTCallbacks.PickiTonCompleteListener(path, true, true, "");
         }
     }
 
