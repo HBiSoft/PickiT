@@ -40,10 +40,7 @@ public class Utils {
             else if (isDownloadsDocument(uri)) {
                 String fileName = getFilePath(context, uri);
                 if (fileName != null) {
-                    fileName = Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
-                    File file = new File(fileName);
-                    if (file.exists())
-                        return fileName;
+                    return Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
                 }
                 String id = DocumentsContract.getDocumentId(uri);
                 if (id.startsWith("raw:")) {
