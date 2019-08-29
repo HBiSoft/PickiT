@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //  Check if permissions was granted
     private boolean checkSelfPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MainActivity.PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, MainActivity.PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE);
             return false;
         }
         return true;
@@ -195,15 +195,17 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     @Override
-    public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasSuccessful, String reason) {
+    public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
 
         if (mdialog != null && mdialog.isShowing()) {
             mdialog.cancel();
         }
 
-        //  Check if it was a Drive file and display a Toast
+        //  Check if it was a Drive/local/unknown provider file and display a Toast
         if (wasDriveFile){
             showLongToast("Drive file was selected");
+        }else if (wasUnknownProvider){
+            showLongToast("File was selected from unknown provider");
         }else {
             showLongToast("Local file was selected");
         }

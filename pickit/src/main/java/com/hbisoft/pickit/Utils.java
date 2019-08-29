@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import java.io.File;
 
@@ -41,11 +42,23 @@ public class Utils {
                     return "storage" + "/" + docId.replace(":", "/");
                 }
 
+            }else if (isRawDownloadsDocument(uri)){
+                String fileName = getFilePath(context, uri);
+                String subFolderName = getSubFolders(uri);
+
+                if (fileName != null) {
+                    return Environment.getExternalStorageDirectory().toString() + "/Download/"+subFolderName + fileName;
+                }
+                String id = DocumentsContract.getDocumentId(uri);
+
+                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                return getDataColumn(context, contentUri, null, null);
             }
             else if (isDownloadsDocument(uri)) {
                 String fileName = getFilePath(context, uri);
+
                 if (fileName != null) {
-                    return Environment.getExternalStorageDirectory().toString() + "/Download/" + fileName;
+                    return Environment.getExternalStorageDirectory().toString() + "/Download/"+ fileName;
                 }
                 String id = DocumentsContract.getDocumentId(uri);
                 if (id.startsWith("raw:")) {
@@ -92,6 +105,31 @@ public class Utils {
         return null;
     }
 
+    private static String getSubFolders(Uri uri) {
+        String replaceChars = String.valueOf(uri).replace("%2F", "/").replace("%20", " ").replace("%3A",":");
+        String[] bits = replaceChars.split("/");
+        String sub5 = bits[bits.length - 2];
+        String sub4 = bits[bits.length - 3];
+        String sub3 = bits[bits.length - 4];
+        String sub2 = bits[bits.length - 5];
+        String sub1 = bits[bits.length - 6];
+        if (sub1.equals("Download")){
+            return sub2+"/"+sub3+"/"+sub4+"/"+sub5+"/";
+        }
+        else if (sub2.equals("Download")){
+            return sub3+"/"+sub4+"/"+sub5+"/";
+        }
+        else if (sub3.equals("Download")){
+            return sub4+"/"+sub5+"/";
+        }
+        else if (sub4.equals("Download")){
+            return sub5+"/";
+        }
+        else {
+            return "";
+        }
+    }
+
     static String getRealPathFromURI_BelowAPI19(Context context, Uri contentUri) {
         String[] proj = {MediaStore.Video.Media.DATA};
         CursorLoader loader = new CursorLoader(context, contentUri, proj, null, null, null);
@@ -103,6 +141,7 @@ public class Utils {
         return result;
     }
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
@@ -123,14 +162,15 @@ public class Utils {
     }
 
 
+    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private static String getFilePath(Context context, Uri uri) {
         Cursor cursor = null;
-        final String[] projection = {MediaStore.MediaColumns.DISPLAY_NAME};
+        final String[] projection = {MediaStore.Files.FileColumns.DISPLAY_NAME};
         try {
             cursor = context.getContentResolver().query(uri, projection, null, null,
                     null);
             if (cursor != null && cursor.moveToFirst()) {
-                final int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME);
+                final int index = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DISPLAY_NAME);
                 return cursor.getString(index);
             }
         }catch (Exception e) {
@@ -152,6 +192,10 @@ public class Utils {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
+    private static boolean isRawDownloadsDocument(Uri uri) {
+        String uriToString = String.valueOf(uri);
+        return uriToString.contains("com.android.providers.downloads.documents/document/raw");
+    }
 
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());

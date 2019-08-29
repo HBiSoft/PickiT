@@ -26,21 +26,21 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     private Cursor returnCursor;
     private InputStream is = null;
     private String extension;
+    private String errorReason = "";
 
-    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback) {
+    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback, String filename) {
         this.mUri = uri;
         mContext = new WeakReference<>(context);
         this.callback = callback;
+        this.filename = filename;
     }
 
     @Override
     protected void onPreExecute() {
         callback.PickiTonPreExecute();
-
         Context context = mContext.get();
         if (context != null) {
             folder = context.getExternalFilesDir("Temp");
-            filename = "tempDriveFile";
             returnCursor = context.getContentResolver().query(mUri, null, null, null, null);
             final MimeTypeMap mime = MimeTypeMap.getSingleton();
             extension = mime.getExtensionFromMimeType(context.getContentResolver().getType(mUri));
@@ -70,9 +70,14 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
             int size = (int) returnCursor.getLong(sizeIndex);
             returnCursor.close();
 
-            pathPlusName = folder + "/" + filename + "." + extension;
+            if (extension == null){
+                pathPlusName = folder + "/" + filename;
+                file = new File(folder + "/" + filename);
+            }else {
+                pathPlusName = folder + "/" + filename + "." + extension;
+                file = new File(folder + "/" + filename + "." + extension);
+            }
 
-            file = new File(folder + "/" + filename + "." + extension);
             BufferedInputStream bis = new BufferedInputStream(is);
             FileOutputStream fos = new FileOutputStream(file);
 
@@ -91,7 +96,8 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
             fos.close();
 
         } catch (IOException e) {
-            Log.e("Pickit IOException = ", String.valueOf(e));
+            Log.e("Pickit IOException = ", e.getMessage());
+            errorReason = e.getMessage();
         }
 
         return file.getAbsolutePath();
@@ -99,6 +105,10 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     }
 
     protected void onPostExecute(String result) {
-        callback.PickiTonPostExecute(pathPlusName, true);
+        if(result == null){
+            callback.PickiTonPostExecute(pathPlusName, true, false, errorReason);
+        }else {
+            callback.PickiTonPostExecute(pathPlusName, true, true, "");
+        }
     }
 }
