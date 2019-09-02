@@ -85,13 +85,13 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 
-Dropbox/Google Drive/OneDrive files:
+Dropbox, Google Drive, OneDrive and files from unknown file providers:
 ---
     
-If the selected file was from Dropbox/Google Drive or OneDrive, it will then be copied/created in</br> 
+If the selected file was from Dropbox,Google Drive, OneDrive or an unknown file provider, it will then be copied/created in</br> 
 `Internal Storage - Android - data - your.package.name - files - Temp`
 
-It is your responsibility to delete the file by calling:
+It is your responsibility to delete the file when you are done with it, by calling:
 
 ```java
 pickiT.deleteTemporaryFile();
@@ -114,30 +114,35 @@ public void onDestroy() {
 }
 ```
 
+If you do not call `pickiT.deleteTemporaryFile();`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
+
     
 Callback methods
 ---
 
 ```java
-//Called once the file creations starts (onPreExecute) and will only be called if the selected file is not local
+//Called when the file creations starts (similar to onPreExecute)
+//This will only be called if the selected file is not local or if the file is from an unknown file provider
 @Override
 public void PickiTonStartListener() {
     //Can be used to display a ProgressDialog
 }
 
-//Returns the progress of the file created (in percentage) and will only be called if the selected file is not local
+//Returns the progress of the file being created (in percentage)
+//This will only be called if the selected file is not local or if the file is from an unknown file provider
 @Override
 public void PickiTonProgressUpdate(int progress) {
     //Can be used to update the progress of your dialog
 }
 
-//Called if the selected file was from Dropbox/Google Drive or OneDrive and is done creating the file.
 //If the selected file was a local file then this will be called directly, returning the path as a String.
-//Additionally, a boolean will be returned letting you know if the file selected was from Dropbox/Google Drive or OneDrive.
+//String path - returned path
+//boolean wasDriveFile - check if it was a drive file
+//boolean wasUnknownProvider - check if it was from an unknown file provider
 //boolean wasSuccessful - check if it was successful
 //String reason - the get the reason why wasSuccessful returned false
 @Override
-public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasSuccessful, String reason) {
+public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
     //Dismiss dialog and return the path
 }
 ```
