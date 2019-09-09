@@ -34,7 +34,7 @@ Then, add the dependency, in your app level build.gradle:
 
 ```java
 dependencies {
-    implementation 'com.github.HBiSoft:PickiT:0.1.4'
+    implementation 'com.github.HBiSoft:PickiT:0.1.5'
 }
 ```
     
