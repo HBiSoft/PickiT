@@ -62,13 +62,19 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     @Override
     protected String doInBackground(Uri... params) {
         File file = null;
+        int size = -1;
 
         try {
-            assert returnCursor != null;
-            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-            returnCursor.moveToFirst();
-            int size = (int) returnCursor.getLong(sizeIndex);
-            returnCursor.close();
+            try {
+                if (returnCursor != null && returnCursor.moveToFirst()){
+                    int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                    size = (int) returnCursor.getLong(sizeIndex);
+                }
+            }
+            finally {
+                if (returnCursor != null)
+                returnCursor.close();
+            }
 
             if (extension == null){
                 pathPlusName = folder + "/" + filename;
@@ -88,7 +94,9 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
             while ((count = bis.read(data)) != -1) {
                 if (!isCancelled()) {
                     total += count;
-                    publishProgress((int) ((total * 100) / size));
+                    if (size != -1) {
+                        publishProgress((int) ((total * 100) / size));
+                    }
                     fos.write(data, 0, count);
                 }
             }
