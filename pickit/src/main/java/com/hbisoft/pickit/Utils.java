@@ -10,14 +10,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.File;
 
-public class Utils {
-    private static String reason;
+class Utils {
+    private static String failReason;
     static String errorReason(){
-        return reason;
+        return failReason;
     }
 
     @SuppressLint("NewApi")
@@ -96,6 +95,9 @@ public class Utils {
             if (isGooglePhotosUri(uri)) {
                 return uri.getLastPathSegment();
             }
+            if (getDataColumn(context, uri, null, null) == null){
+                failReason = "dataReturnedNull";
+            }
             return getDataColumn(context, uri, null, null);
         }
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
@@ -153,7 +155,7 @@ public class Utils {
                 return cursor.getString(index);
             }
         }catch (Exception e) {
-            reason = e.getMessage();
+            failReason = e.getMessage();
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -174,7 +176,7 @@ public class Utils {
                 return cursor.getString(index);
             }
         }catch (Exception e) {
-            reason = e.getMessage();
+            failReason = e.getMessage();
         } finally {
             if (cursor != null)
                 cursor.close();
