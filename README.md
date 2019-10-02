@@ -1,5 +1,5 @@
 # PickiT 
-
+[![](https://jitpack.io/v/HBiSoft/PickiT.svg)](https://jitpack.io/#HBiSoft/PickiT)
 [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-PickiT-green.svg?style=flat )]( https://android-arsenal.com/details/1/7890 )
 
 An Android library that returns real paths from Uri's
