@@ -1,4 +1,7 @@
-# PickiT
+# PickiT 
+
+[![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-PickiT-green.svg?style=flat )]( https://android-arsenal.com/details/1/7890 )
+
 An Android library that returns real paths from Uri's
 
 ![pickiticon](https://user-images.githubusercontent.com/35602540/63160498-37d88780-c01e-11e9-95f7-d6fac239f53b.png)
