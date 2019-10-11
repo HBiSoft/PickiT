@@ -117,6 +117,10 @@ public class PickiT implements CallBackTask{
         }
     }
 
+    public boolean wasLocalFileSelected(Uri uri){
+        return !isDropBox(uri) && !isGoogleDrive(uri) && !isOneDrive(uri);
+    }
+
     // Check different providers
     private boolean isDropBox(Uri uri) {
         return String.valueOf(uri).toLowerCase().contains("content://com.dropbox.android");
