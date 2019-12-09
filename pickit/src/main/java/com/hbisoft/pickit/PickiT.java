@@ -52,12 +52,14 @@ public class PickiT implements CallBackTask{
                     //We first check if it was called before, avoiding multiple calls
                     if (!unknownProviderCalledBefore) {
                         unknownProviderCalledBefore = true;
-                        //Then we check if the _data colomn returned null
-                        if (Utils.errorReason() != null && Utils.errorReason().equals("dataReturnedNull")) {
-                            isFromUnknownProvider = true;
-                            //Copy the file to the temporary folder
-                            downloadFile(uri, getFileName(uri));
-                            return;
+                        if (uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+                            //Then we check if the _data colomn returned null
+                            if (Utils.errorReason() != null && Utils.errorReason().equals("dataReturnedNull")) {
+                                isFromUnknownProvider = true;
+                                //Copy the file to the temporary folder
+                                downloadFile(uri, getFileName(uri));
+                                return;
+                            }
                         }
                     }
                     //Else an error occurred, get/set the reason for the error

@@ -67,8 +67,14 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
         try {
             try {
                 if (returnCursor != null && returnCursor.moveToFirst()){
-                    int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                    size = (int) returnCursor.getLong(sizeIndex);
+                    if (mUri.getScheme() != null)
+                    if (mUri.getScheme().equals("content")) {
+                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        size = (int) returnCursor.getLong(sizeIndex);
+                    }else if (mUri.getScheme().equals("file")) {
+                        File ff = new File(mUri.getPath());
+                        size = (int) ff.length();
+                    }
                 }
             }
             finally {
