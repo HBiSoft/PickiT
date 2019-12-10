@@ -66,6 +66,12 @@ class Utils {
                     if (file.exists())
                         return id;
                 }
+                if (id.startsWith("raw%3A%2F")){
+                    id = id.replaceFirst("raw%3A%2F", "");
+                    File file = new File(id);
+                    if (file.exists())
+                        return id;
+                }
                 final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
                 return getDataColumn(context, contentUri, null, null);
             }
