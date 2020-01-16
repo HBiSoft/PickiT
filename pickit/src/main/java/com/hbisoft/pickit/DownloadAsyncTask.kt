@@ -16,6 +16,7 @@ import java.io.InputStream
 import java.lang.ref.WeakReference
 
 class DownloadAsyncTask(
+    private val taskId: Int,
     private val uri: Uri,
     context: Context,
     private val taskCallBack: TaskCallBack,
@@ -30,7 +31,7 @@ class DownloadAsyncTask(
     private var errorReason: String? = ""
 
     override fun onPreExecute() {
-        taskCallBack.onPreExecute()
+        taskCallBack.onPreExecute(taskId)
         val context = weakReferenceContext.get()
         if (context != null) {
             folder = context.getExternalFilesDir("Temp")
@@ -41,6 +42,7 @@ class DownloadAsyncTask(
                 inputStream = context.contentResolver.openInputStream(uri)
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
+                errorReason = e.message
             }
         }
     }
@@ -48,7 +50,7 @@ class DownloadAsyncTask(
     override fun onProgressUpdate(vararg values: Int?) {
         super.onProgressUpdate(*values)
         val post = values.firstOrNull()
-        taskCallBack.onProgressUpdate(post)
+        taskCallBack.onProgressUpdate(taskId, post)
     }
 
     override fun doInBackground(vararg params: Uri?): String? {
@@ -74,7 +76,7 @@ class DownloadAsyncTask(
             } else {
                 File(folder.toString() + "/" + filename + "." + extension)
             }
-            val bis = BufferedInputStream(inputStream)
+            val bis = BufferedInputStream(inputStream ?: return null)
             val fos = FileOutputStream(file)
             val data = ByteArray(1024)
             var total: Long = 0
@@ -99,9 +101,9 @@ class DownloadAsyncTask(
 
     override fun onPostExecute(result: String?) {
         if (result == null) {
-            taskCallBack.onPostExecute(result, wasDriveFile = true, wasSuccessful = false, reason = errorReason)
+            taskCallBack.onPostExecute(taskId, result, status = PickiTStatus.failed, reason = errorReason)
         } else {
-            taskCallBack.onPostExecute(result, wasDriveFile = true, wasSuccessful = true, reason = "")
+            taskCallBack.onPostExecute(taskId, result, status = PickiTStatus.success)
         }
     }
 

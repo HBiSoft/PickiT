@@ -1,13 +1,14 @@
 package com.hbisoft.pickit
 
 interface PickiTCallback {
-    fun onStartListener()
-    fun onProgressUpdate(progress: Int?)
+    fun onStartListener(request: Int)
+    fun onProgressUpdate(request: Int, progress: Int?)
     fun onCompleteListener(
+        request: Int,
         path: String?,
-        wasDriveFile: Boolean,
-        wasUnknownProvider: Boolean,
-        wasSuccessful: Boolean,
-        reason: String?
+        provider: PickiTProvider,
+        status: PickiTStatus,
+        reason: String? = null
     )
+
 }

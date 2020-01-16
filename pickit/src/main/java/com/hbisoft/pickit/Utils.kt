@@ -2,6 +2,7 @@ package com.hbisoft.pickit
 
 import android.annotation.SuppressLint
 import android.annotation.TargetApi
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.content.CursorLoader
@@ -13,7 +14,7 @@ import android.provider.DocumentsContract
 import android.provider.MediaStore
 import java.io.File
 
-internal object Utils {
+class Utils constructor() {
     private var failReason: String? = null
     fun errorReason(): String? {
         return failReason
@@ -24,9 +25,9 @@ internal object Utils {
         val isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
             return getFromKitKatDocument(uri, context)
-        } else if ("content".equals(uri.scheme, ignoreCase = true)) {
+        } else if (uri.scheme == ContentResolver.SCHEME_CONTENT) {
             return getFromContent(uri, context)
-        } else if ("file".equals(uri.scheme, ignoreCase = true)) {
+        } else if (uri.scheme == ContentResolver.SCHEME_FILE) {
             return uri.path
         }
         return null
@@ -148,8 +149,9 @@ internal object Utils {
         selection: String?,
         selectionArgs: Array<String>?
     ): String? {
+        uri?:return null
         var cursor: Cursor? = null
-        val column = "_data"
+        val column = MediaStore.Images.Media.DATA
         val projection = arrayOf(column)
         try {
             cursor = context.contentResolver.query(uri, projection, selection, selectionArgs, null)

@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.hbisoft.pickit.PickiT;
 import com.hbisoft.pickit.PickiTCallback;
+import com.hbisoft.pickit.PickiTProvider;
+import com.hbisoft.pickit.PickiTStatus;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     PickiT pickiT;
 
     //Views
-    Button button_pick;
+    Button pickButton;
     TextView pickitTv, originalTv, originalTitle, pickitTitle;
 
     @Override
@@ -56,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        button_pick = findViewById(R.id.button_pick);
+        pickButton = findViewById(R.id.button_pick);
         pickitTv = findViewById(R.id.pickitTv);
         originalTv = findViewById(R.id.originalTv);
         originalTitle = findViewById(R.id.originalTitle);
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void buttonClickEvent() {
-        button_pick.setOnClickListener(view -> {
+        pickButton.setOnClickListener(view -> {
             openGallery();
 
             //  Make TextView's invisible
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 //  else the path will directly be returned in onCompleteListener
                 pickiT.getPath(0, data.getData(), Build.VERSION.SDK_INT, new PickiTCallback() {
                     @Override
-                    public void onStartListener() {
+                    public void onStartListener(int request) {
                         final AlertDialog.Builder mPro = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.myDialog));
                         @SuppressLint("InflateParams") final View mPView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dailog_layout, null);
                         percentText = mPView.findViewById(R.id.percentText);
@@ -153,30 +155,30 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onProgressUpdate(Integer progress) {
+                    public void onProgressUpdate(int request,Integer progress) {
                         String progressPlusPercent = progress + "%";
                         percentText.setText(progressPlusPercent);
                         mProgressBar.setProgress(progress);
                     }
 
                     @Override
-                    public void onCompleteListener(String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
+                    public void onCompleteListener(int request, String path, PickiTProvider pickiTProvider, PickiTStatus status, String reason) {
 
                         if (mdialog != null && mdialog.isShowing()) {
                             mdialog.cancel();
                         }
 
                         //  Check if it was a Drive/local/unknown provider file and display a Toast
-                        if (wasDriveFile) {
+                        if (pickiTProvider == PickiTProvider.drive) {
                             showLongToast("Drive file was selected");
-                        } else if (wasUnknownProvider) {
+                        } else if (pickiTProvider == PickiTProvider.unknown) {
                             showLongToast("File was selected from unknown provider");
                         } else {
                             showLongToast("Local file was selected");
                         }
 
                         //  Chick if it was successful
-                        if (wasSuccessful) {
+                        if (status == PickiTStatus.success) {
                             //  Set returned path to TextView
                             pickitTv.setText(path);
 
