@@ -13,7 +13,7 @@ class PickiT(private val context: Context){
     private var downloadAsyncTask: DownloadAsyncTask? = null
     private var unknownProviderCalledBefore = false
 
-    fun getPath(uri: Uri?, apiLevel: Int, pickiTCallback: PickiTCallback) {
+    fun getPath(request: Int, uri: Uri?, apiLevel: Int, pickiTCallback: PickiTCallback) {
         if (uri == null) {
             pickiTCallback.onCompleteListener(null,
                 wasDriveFile = false,

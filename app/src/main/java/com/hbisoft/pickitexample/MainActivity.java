@@ -24,7 +24,7 @@ import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
     //Permissions
     private static final int SELECT_VIDEO_REQUEST = 777;
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
@@ -64,17 +64,14 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void buttonClickEvent() {
-        button_pick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openGallery();
+        button_pick.setOnClickListener(view -> {
+            openGallery();
 
-                //  Make TextView's invisible
-                originalTitle.setVisibility(View.INVISIBLE);
-                originalTv.setVisibility(View.INVISIBLE);
-                pickitTitle.setVisibility(View.INVISIBLE);
-                pickitTv.setVisibility(View.INVISIBLE);
-            }
+            //  Make TextView's invisible
+            originalTitle.setVisibility(View.INVISIBLE);
+            originalTv.setVisibility(View.INVISIBLE);
+            pickitTitle.setVisibility(View.INVISIBLE);
+            pickitTv.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -133,20 +130,17 @@ public class MainActivity extends AppCompatActivity  {
                 //  /storage/emulated/0/Android/data/your.package.name/files/Temp/tempDriveFile.mp4
                 //
                 //  else the path will directly be returned in onCompleteListener
-                pickiT.getPath(data.getData(), Build.VERSION.SDK_INT, new PickiTCallback() {
+                pickiT.getPath(0, data.getData(), Build.VERSION.SDK_INT, new PickiTCallback() {
                     @Override
                     public void onStartListener() {
                         final AlertDialog.Builder mPro = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, R.style.myDialog));
                         @SuppressLint("InflateParams") final View mPView = LayoutInflater.from(MainActivity.this).inflate(R.layout.dailog_layout, null);
                         percentText = mPView.findViewById(R.id.percentText);
 
-                        percentText.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                pickiT.cancelTask();
-                                if (mdialog != null && mdialog.isShowing()) {
-                                    mdialog.cancel();
-                                }
+                        percentText.setOnClickListener(view -> {
+                            pickiT.cancelTask();
+                            if (mdialog != null && mdialog.isShowing()) {
+                                mdialog.cancel();
                             }
                         });
 
@@ -173,11 +167,11 @@ public class MainActivity extends AppCompatActivity  {
                         }
 
                         //  Check if it was a Drive/local/unknown provider file and display a Toast
-                        if (wasDriveFile){
+                        if (wasDriveFile) {
                             showLongToast("Drive file was selected");
-                        }else if (wasUnknownProvider){
+                        } else if (wasUnknownProvider) {
                             showLongToast("File was selected from unknown provider");
-                        }else {
+                        } else {
                             showLongToast("Local file was selected");
                         }
 
@@ -191,7 +185,7 @@ public class MainActivity extends AppCompatActivity  {
                             originalTv.setVisibility(View.VISIBLE);
                             pickitTitle.setVisibility(View.VISIBLE);
                             pickitTv.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             showLongToast("Error, please see the log..");
                             pickitTv.setVisibility(View.VISIBLE);
                             pickitTv.setText(reason);
