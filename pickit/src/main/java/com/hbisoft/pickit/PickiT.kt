@@ -140,7 +140,6 @@ class PickiT(private val context: Context) {
             override fun onPostExecute(
                 taskId: Int,
                 path: String?,
-                provider: PickiTProvider,
                 status: PickiTStatus,
                 reason: String?
             ) {
