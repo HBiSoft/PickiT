@@ -27,7 +27,7 @@ public class PickiT implements CallBackTask{
             // Drive file was selected
             if (isOneDrive(uri)||isDropBox(uri)||isGoogleDrive(uri)){
                 isDriveFile = true;
-                downloadFile(uri, "tempFile");
+                downloadFile(uri);
             }
             // Local file was selected
             else {
@@ -57,7 +57,12 @@ public class PickiT implements CallBackTask{
                             if (Utils.errorReason() != null && Utils.errorReason().equals("dataReturnedNull")) {
                                 isFromUnknownProvider = true;
                                 //Copy the file to the temporary folder
-                                downloadFile(uri, getFileName(uri));
+                                downloadFile(uri);
+                                return;
+                            }else if (Utils.errorReason() != null && Utils.errorReason().contains("column '_data' does not exist")){
+                                isFromUnknownProvider = true;
+                                //Copy the file to the temporary folder
+                                downloadFile(uri);
                                 return;
                             }
                         }
@@ -77,9 +82,8 @@ public class PickiT implements CallBackTask{
                     //Todo: Add checks for unknown file extensions
 
                     if (!subStringExtension.equals(extensionFromMime) && uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-                        String fileName = returnedPath.substring(returnedPath.lastIndexOf("/") + 1);
                         isFromUnknownProvider = true;
-                        downloadFile(uri, fileName);
+                        downloadFile(uri);
                         return;
                     }
 
@@ -95,19 +99,9 @@ public class PickiT implements CallBackTask{
 
     }
 
-    //Get the file name
-    private String getFileName(Uri uri) {
-        String replaced = String.valueOf(uri).replace("%2F", "/").replace("%20", " ").replace("%3A","/");
-        String name = replaced.substring(replaced.lastIndexOf("/") + 1);
-        if (name.indexOf(".") > 0) {
-            name = name.substring(0, name.lastIndexOf("."));
-        }
-        return name;
-    }
-
     // Create a new file from the Uri that was selected
-    private void downloadFile(Uri uri, String fileName){
-        asyntask = new DownloadAsyncTask(uri, context, this, fileName);
+    private void downloadFile(Uri uri){
+        asyntask = new DownloadAsyncTask(uri, context, this);
         asyntask.execute();
     }
 

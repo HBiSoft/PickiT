@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.OpenableColumns;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -22,17 +21,14 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     private WeakReference<Context> mContext;
     private String pathPlusName;
     private File folder;
-    private String filename;
     private Cursor returnCursor;
     private InputStream is = null;
-    private String extension;
     private String errorReason = "";
 
-    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback, String filename) {
+    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback) {
         this.mUri = uri;
         mContext = new WeakReference<>(context);
         this.callback = callback;
-        this.filename = filename;
     }
 
     @Override
@@ -42,8 +38,6 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
         if (context != null) {
             folder = context.getExternalFilesDir("Temp");
             returnCursor = context.getContentResolver().query(mUri, null, null, null, null);
-            final MimeTypeMap mime = MimeTypeMap.getSingleton();
-            extension = mime.getExtensionFromMimeType(context.getContentResolver().getType(mUri));
             try {
                 is = context.getContentResolver().openInputStream(mUri);
             } catch (FileNotFoundException e) {
@@ -82,13 +76,8 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
                 returnCursor.close();
             }
 
-            if (extension == null){
-                pathPlusName = folder + "/" + filename;
-                file = new File(folder + "/" + filename);
-            }else {
-                pathPlusName = folder + "/" + filename + "." + extension;
-                file = new File(folder + "/" + filename + "." + extension);
-            }
+            pathPlusName = folder + "/" + getFileName(mUri, mContext.get());
+            file = new File(folder + "/" + getFileName(mUri, mContext.get()));
 
             BufferedInputStream bis = new BufferedInputStream(is);
             FileOutputStream fos = new FileOutputStream(file);
@@ -116,6 +105,30 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
 
         return file.getAbsolutePath();
 
+    }
+
+    private String getFileName(Uri uri, Context context) {
+        String result = null;
+        if (uri.getScheme() != null) {
+            if (uri.getScheme().equals("content")) {
+                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            assert result != null;
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 
     protected void onPostExecute(String result) {
