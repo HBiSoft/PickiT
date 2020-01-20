@@ -8,11 +8,11 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import java.io.File
 
-class PickiT(private val context: Context) {
+class PickiT {
     private var resultProvider = PickiTProvider.unknown
     private var downloadAsyncTask: DownloadAsyncTask? = null
 
-    fun getPath(request: Int, uri: Uri?, apiLevel: Int, pickiTCallback: PickiTCallback) {
+    fun getPath(context: Context, request: Int, uri: Uri?, apiLevel: Int, pickiTCallback: PickiTCallback) {
         if (uri == null) {
             pickiTCallback.onCompleteListener(
                 request = request,
@@ -29,7 +29,7 @@ class PickiT(private val context: Context) {
         if (apiLevel >= Build.VERSION_CODES.KITKAT) { // Drive file was selected
             if (isByProviders(uri)) {
                 resultProvider = PickiTProvider.drive
-                downloadFile(request, uri, "tempFile", pickiTCallback)
+                downloadFile(context, request, uri, "tempFile", pickiTCallback)
             } else {
                 returnedPath = utils.getRealPathFromURI_API19(context, uri)
                 //Get the file extension
@@ -57,7 +57,7 @@ class PickiT(private val context: Context) {
                         if (utils.errorReason() != null && utils.errorReason() == "dataReturnedNull") {
                             resultProvider = PickiTProvider.unknown
                             //Copy the file to the temporary folder
-                            downloadFile(request, uri, getFileName(uri), pickiTCallback)
+                            downloadFile(context, request, uri, getFileName(uri), pickiTCallback)
                             return
                         }
                     }
@@ -84,7 +84,7 @@ class PickiT(private val context: Context) {
                     ) {
                         val fileName = returnedPath.substring(returnedPath.lastIndexOf("/") + 1)
                         resultProvider = PickiTProvider.unknown
-                        downloadFile(request, uri, fileName, pickiTCallback)
+                        downloadFile(context, request, uri, fileName, pickiTCallback)
                         return
                     }
                     // Path can be returned, no need to make a "copy"
@@ -125,8 +125,8 @@ class PickiT(private val context: Context) {
     /**
      * Create a new file from the Uri that was selected.
      */
-    private fun downloadFile(request: Int, uri: Uri, fileName: String, pickiTCallback: PickiTCallback) {
-        downloadAsyncTask = DownloadAsyncTask(request, uri, context, object : TaskCallBack {
+    private fun downloadFile(context: Context, request: Int, uri: Uri, fileName: String, pickiTCallback: PickiTCallback) {
+        downloadAsyncTask = DownloadAsyncTask(context, request, object : TaskCallBack {
             //region /**PickiT [TaskCallBack]**/
             /**PickiT [TaskCallBack]*/
             override fun onPreExecute(taskId: Int) {
@@ -153,15 +153,15 @@ class PickiT(private val context: Context) {
             }
             //endregion
         }, fileName)
-        downloadAsyncTask?.execute()
+        downloadAsyncTask?.execute(uri)
     }
 
     /**
      * End the "copying" of the file
      */
-    fun cancelTask() {
+    fun cancelTask(context: Context) {
         downloadAsyncTask?.cancel(true)
-        deleteTemporaryFile()
+        deleteTemporaryFile(context)
     }
 
     fun isByProviders(uri: Uri): Boolean {
@@ -183,10 +183,10 @@ class PickiT(private val context: Context) {
     //endregion
 
     //region Delete the temporary folder
-    fun deleteTemporaryFile() {
+    fun deleteTemporaryFile(context: Context) {
         val folder = context.getExternalFilesDir("Temp") ?: return
         if (deleteDirectory(folder)) {
-            Log.i("PickiT ", "deleteDirectory was called")
+            Log.i(TAG, "deleteDirectory was called")
         }
     }
 
@@ -199,7 +199,7 @@ class PickiT(private val context: Context) {
                 } else {
                     val wasSuccessful = file.delete()
                     if (wasSuccessful) {
-                        Log.i("PickiT", "Deleted successfully")
+                        Log.i(TAG, "Deleted successfully")
                     }
                 }
             }
@@ -207,5 +207,9 @@ class PickiT(private val context: Context) {
         return path.delete()
     }
     //endregion
+
+    companion object {
+        const val TAG: String = "PickiT"
+    }
 
 }

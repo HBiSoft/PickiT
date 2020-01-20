@@ -1,5 +1,6 @@
 package com.hbisoft.pickit
 
+import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
@@ -9,42 +10,32 @@ import android.util.Log
 import android.webkit.MimeTypeMap
 import java.io.BufferedInputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.lang.ref.WeakReference
 
 class DownloadAsyncTask(
-    private val taskId: Int,
-    private val uri: Uri,
     context: Context,
+    private val taskId: Int,
     private val taskCallBack: TaskCallBack,
     private val filename: String
-) : AsyncTask<Uri?, Int?, String?>() {
+) : AsyncTask<Uri, Int?, String?>() {
 
-    private val weakReferenceContext: WeakReference<Context> = WeakReference(context)
     private var folder: File? = null
     private var returnCursor: Cursor? = null
     private var inputStream: InputStream? = null
     private var extension: String? = null
     private var errorReason: String? = ""
+    private val contentResolver: ContentResolver
+
+    init {
+        folder = context.getExternalFilesDir("Temp")
+        contentResolver = context.contentResolver
+    }
 
     override fun onPreExecute() {
         taskCallBack.onPreExecute(taskId)
-        val context = weakReferenceContext.get()
-        if (context != null) {
-            folder = context.getExternalFilesDir("Temp")
-            returnCursor = context.contentResolver.query(uri, null, null, null, null)
-            val mime = MimeTypeMap.getSingleton()
-            extension = mime.getExtensionFromMimeType(context.contentResolver.getType(uri))
-            try {
-                inputStream = context.contentResolver.openInputStream(uri)
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
-                errorReason = e.message
-            }
-        }
+
     }
 
     override fun onProgressUpdate(vararg values: Int?) {
@@ -53,10 +44,20 @@ class DownloadAsyncTask(
         taskCallBack.onProgressUpdate(taskId, post)
     }
 
-    override fun doInBackground(vararg params: Uri?): String? {
+    override fun doInBackground(vararg params: Uri): String? {
+        val uri = params.firstOrNull()
+        if (uri == null) {
+            errorReason = "a least one uri must be defined"
+            return null
+        }
         var file: File? = null
         var size = -1
         try {
+            val mime = MimeTypeMap.getSingleton()
+            extension = mime.getExtensionFromMimeType(contentResolver.getType(uri))
+            inputStream = contentResolver.openInputStream(uri)
+
+            returnCursor = contentResolver.query(uri, null, null, null, null)
             returnCursor.use { cursor ->
                 if (cursor?.moveToFirst() == true) {
                     when (uri.scheme) {
