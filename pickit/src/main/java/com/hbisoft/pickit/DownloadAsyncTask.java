@@ -90,7 +90,12 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
                 if (!isCancelled()) {
                     total += count;
                     if (size != -1) {
-                        publishProgress((int) ((total * 100) / size));
+                        try {
+                            publishProgress((int) ((total * 100) / size));
+                        }catch(Exception e){
+                            Log.i("PickiT -", "File size is less than 1");
+                            publishProgress(0);
+                        }
                     }
                     fos.write(data, 0, count);
                 }
