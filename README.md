@@ -44,7 +44,7 @@ dependencies {
 Implementation:
 ---
     
-First, implement PickiT callbacks in the `Activity` that you want to use it, as shown below:
+First, implement PickiT callbacks, as shown below:
 
 ```java
 public class MainActivity extends Activity implements PickiTCallbacks {
