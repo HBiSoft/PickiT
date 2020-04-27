@@ -126,7 +126,7 @@ Callback methods
 
 ```java
 //When selecting a file from Google Drive, for example, the Uri will be returned before the file is available(if it has not yet been cached/downloaded).
-//We are unable to see the progress since Google Drive doesn't provide it to us
+//We are unable to see the progress
 //Apps like Dropbox will display a dialog inside the picker
 //This will only be called when selecting a drive file
 @Override
