@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         setContentView(R.layout.activity_main);
 
         //Initialize PickiT
-        pickiT = new PickiT(this, this);
+        //context, listener, activity
+        pickiT = new PickiT(this, this, this);
 
     }
 }
@@ -124,6 +125,16 @@ Callback methods
 ---
 
 ```java
+//When selecting a file from Google Drive, for example, the Uri will be returned before the file is available(if it has not yet been cached/downloaded).
+//We are unable to see the progress since Google Drive doesn't provide it to us
+//Apps like Dropbox will display a dialog inside the picker
+//This will only be called when selecting a drive file
+@Override
+public void PickiTonUriReturned() {
+    //Use to let user know that we are waiting for the application to return the file
+    //See the demo project to see how I used this.
+}
+
 //Called when the file creations starts (similar to onPreExecute)
 //This will only be called if the selected file is not local or if the file is from an unknown file provider
 @Override
