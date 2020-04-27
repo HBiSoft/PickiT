@@ -1,5 +1,6 @@
 package com.hbisoft.pickit;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
@@ -15,10 +16,12 @@ public class PickiT implements CallBackTask{
     private boolean isFromUnknownProvider = false;
     private DownloadAsyncTask asyntask;
     private boolean unknownProviderCalledBefore = false;
+    private Activity mActivity;
 
-    public PickiT (Context context, PickiTCallbacks listener){
+    public PickiT (Context context, PickiTCallbacks listener, Activity activity){
         this.context = context;
         this.pickiTCallbacks = listener;
+        mActivity = activity;
     }
 
     public void getPath(Uri uri, int APILevel){
@@ -101,7 +104,7 @@ public class PickiT implements CallBackTask{
 
     // Create a new file from the Uri that was selected
     private void downloadFile(Uri uri){
-        asyntask = new DownloadAsyncTask(uri, context, this);
+        asyntask = new DownloadAsyncTask(uri, context, this, mActivity);
         asyntask.execute();
     }
 
@@ -129,6 +132,11 @@ public class PickiT implements CallBackTask{
     }
 
     // PickiT callback Listeners
+    @Override
+    public void PickiTonUriReturned() {
+        pickiTCallbacks.PickiTonUriReturned();
+    }
+
     @Override
     public void PickiTonPreExecute() {
         pickiTCallbacks.PickiTonStartListener();

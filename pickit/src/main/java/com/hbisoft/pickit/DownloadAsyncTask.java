@@ -1,5 +1,6 @@
 package com.hbisoft.pickit;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,26 +25,18 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     private Cursor returnCursor;
     private InputStream is = null;
     private String errorReason = "";
+    private WeakReference<Activity> activityReference;
 
-    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback) {
+    DownloadAsyncTask(Uri uri, Context context, CallBackTask callback, Activity activity) {
         this.mUri = uri;
         mContext = new WeakReference<>(context);
         this.callback = callback;
+        activityReference = new WeakReference<>(activity);
     }
 
     @Override
     protected void onPreExecute() {
-        callback.PickiTonPreExecute();
-        Context context = mContext.get();
-        if (context != null) {
-            folder = context.getExternalFilesDir("Temp");
-            returnCursor = context.getContentResolver().query(mUri, null, null, null, null);
-            try {
-                is = context.getContentResolver().openInputStream(mUri);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
+        callback.PickiTonUriReturned();
     }
 
     @Override
@@ -57,6 +50,25 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     protected String doInBackground(Uri... params) {
         File file = null;
         int size = -1;
+
+        Context context = mContext.get();
+        if (context != null) {
+            folder = context.getExternalFilesDir("Temp");
+            returnCursor = context.getContentResolver().query(mUri, null, null, null, null);
+            try {
+                is = context.getContentResolver().openInputStream(mUri);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // File is now available
+        activityReference.get().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                callback.PickiTonPreExecute();
+            }
+        });
 
         try {
             try {
@@ -81,7 +93,6 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
 
             BufferedInputStream bis = new BufferedInputStream(is);
             FileOutputStream fos = new FileOutputStream(file);
-
 
             byte[] data = new byte[1024];
             long total = 0;

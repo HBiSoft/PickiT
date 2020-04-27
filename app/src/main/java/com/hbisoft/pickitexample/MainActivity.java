@@ -2,6 +2,7 @@ package com.hbisoft.pickitexample;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         buttonClickEvent();
 
         //Initialize PickiT
-        pickiT = new PickiT(this, this);
+        pickiT = new PickiT(this, this, this);
 
     }
 
@@ -148,8 +149,13 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //  The listeners can be used to display a Dialog when a file is selected from Dropbox/Google Drive or OnDrive.
     //  The listeners are callbacks from an AsyncTask that creates a new File of the original in /storage/emulated/0/Android/data/your.package.name/files/Temp/
     //
+    //  PickiTonUriReturned()
+    //  When selecting a file from Google Drive, for example, the Uri will be returned before the file is available(if it has not yet been cached/downloaded).
+    //  Google Drive will first have to download the file before we have access to it.
+    //  This can be used to let the user know that we(the application), are waiting for the file to be returned.
+    //
     //  PickiTonStartListener()
-    //  This will be call once the file creations starts (onPreExecute) and will only be called if the selected file is not local
+    //  This will be call once the file creations starts and will only be called if the selected file is not local
     //
     //  PickiTonProgressUpdate(int progress)
     //  This will return the progress of the file creation (in percentage) and will only be called if the selected file is not local
@@ -162,9 +168,21 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     ProgressBar mProgressBar;
     TextView percentText;
     private AlertDialog mdialog;
+    ProgressDialog progressBar;
+
+    @Override
+    public void PickiTonUriReturned() {
+        progressBar = new ProgressDialog(this);
+        progressBar.setMessage("Waiting to receive file...");
+        progressBar.setCancelable(false);
+        progressBar.show();
+    }
 
     @Override
     public void PickiTonStartListener() {
+        if (progressBar.isShowing()){
+            progressBar.cancel();
+        }
         final AlertDialog.Builder mPro = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.myDialog));
         @SuppressLint("InflateParams") final View mPView = LayoutInflater.from(this).inflate(R.layout.dailog_layout, null);
         percentText = mPView.findViewById(R.id.percentText);
