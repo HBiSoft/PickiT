@@ -15,6 +15,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
+import java.util.Objects;
 
 class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     private Uri mUri;
@@ -63,29 +64,23 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
         }
 
         // File is now available
-        activityReference.get().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                callback.PickiTonPreExecute();
-            }
-        });
+        activityReference.get().runOnUiThread(() -> callback.PickiTonPreExecute());
 
         try {
             try {
-                if (returnCursor != null && returnCursor.moveToFirst()){
+                if (returnCursor != null && returnCursor.moveToFirst()) {
                     if (mUri.getScheme() != null)
-                    if (mUri.getScheme().equals("content")) {
-                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                        size = (int) returnCursor.getLong(sizeIndex);
-                    }else if (mUri.getScheme().equals("file")) {
-                        File ff = new File(mUri.getPath());
-                        size = (int) ff.length();
-                    }
+                        if (mUri.getScheme().equals("content")) {
+                            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            size = (int) returnCursor.getLong(sizeIndex);
+                        } else if (mUri.getScheme().equals("file")) {
+                            File ff = new File(Objects.requireNonNull(mUri.getPath()));
+                            size = (int) ff.length();
+                        }
                 }
-            }
-            finally {
+            } finally {
                 if (returnCursor != null)
-                returnCursor.close();
+                    returnCursor.close();
             }
 
             pathPlusName = folder + "/" + getFileName(mUri, mContext.get());
@@ -103,7 +98,7 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
                     if (size != -1) {
                         try {
                             publishProgress((int) ((total * 100) / size));
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             Log.i("PickiT -", "File size is less than 1");
                             publishProgress(0);
                         }
@@ -115,11 +110,11 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
             fos.close();
 
         } catch (IOException e) {
-            Log.e("Pickit IOException = ", e.getMessage());
+            Log.e("Pickit IOException = ", Objects.requireNonNull(e.getMessage()));
             errorReason = e.getMessage();
         }
 
-        return file.getAbsolutePath();
+        return Objects.requireNonNull(file).getAbsolutePath();
 
     }
 
@@ -148,9 +143,9 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
     }
 
     protected void onPostExecute(String result) {
-        if(result == null){
+        if (result == null) {
             callback.PickiTonPostExecute(pathPlusName, true, false, errorReason);
-        }else {
+        } else {
             callback.PickiTonPostExecute(pathPlusName, true, true, "");
         }
     }
