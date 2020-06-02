@@ -12,7 +12,7 @@ import java.util.*
 class PickiT(private val context: Context, private val pickiTCallbacks: PickiTCallbacks, private val mActivity: Activity) : CallBackTask {
     private var isDriveFile = false
     private var isFromUnknownProvider = false
-    private lateinit var asyntask: DownloadAsyncTask
+    private lateinit var asyncTask: DownloadAsyncTask
     private var unknownProviderCalledBefore = false
 
     fun getPath(uri: Uri?, APILevel: Int) {
@@ -44,23 +44,33 @@ class PickiT(private val context: Context, private val pickiTCallbacks: PickiTCa
                     //We first check if it was called before, avoiding multiple calls
                     if (!unknownProviderCalledBefore) {
                         unknownProviderCalledBefore = true
-                        if (uri.scheme != null && uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                            //Then we check if the _data colomn returned null
-                            if (Utils.errorReason() != null && Utils.errorReason() == "dataReturnedNull") {
-                                isFromUnknownProvider = true
-                                //Copy the file to the temporary folder
-                                downloadFile(uri)
-                                return
-                            } else if (Utils.errorReason() != null && Utils.errorReason()!!.contains("column '_data' does not exist")) {
-                                isFromUnknownProvider = true
-                                //Copy the file to the temporary folder
-                                downloadFile(uri)
-                                return
+                        uri.scheme?.let {
+                            if (it == ContentResolver.SCHEME_CONTENT) {
+                                //Then we check if the _data colomn returned null
+                                Utils.errorReason()?.let { error ->
+                                    if (error == "dataReturnedNull") {
+                                        isFromUnknownProvider = true
+                                        //Copy the file to the temporary folder
+                                        downloadFile(uri)
+                                        return
+                                    } else if (error.contains("column '_data' does not exist")) {
+                                        isFromUnknownProvider = true
+                                        //Copy the file to the temporary folder
+                                        downloadFile(uri)
+                                        return
+                                    }
+                                }
                             }
                         }
                     }
                     //Else an error occurred, get/set the reason for the error
-                    pickiTCallbacks.PickiTonCompleteListener(returnedPath, wasDriveFile = false, wasUnknownProvider = false, wasSuccessful = false, Reason = Utils.errorReason())
+                    pickiTCallbacks.PickiTonCompleteListener(
+                            returnedPath,
+                            wasDriveFile = false,
+                            wasUnknownProvider = false,
+                            wasSuccessful = false,
+                            Reason = Utils.errorReason()
+                                    ?: "")
                 } else {
                     // This can be caused by two situations
                     // 1. The file was selected from an unknown provider (for example a file that was downloaded from a third party app)
@@ -70,32 +80,41 @@ class PickiT(private val context: Context, private val pickiTCallbacks: PickiTCa
                     // We provide a name by getting the text after the last "/"
                     // Remember if the extension can't be found, it will not be added, but you will still be able to use the file
                     //Todo: Add checks for unknown file extensions
-                    if (subStringExtension != extensionFromMime && uri.scheme != null && uri.scheme == ContentResolver.SCHEME_CONTENT) {
-                        isFromUnknownProvider = true
-                        downloadFile(uri)
-                        return
+                    uri.scheme?.let {
+                        if (subStringExtension != extensionFromMime && it == ContentResolver.SCHEME_CONTENT) {
+                            isFromUnknownProvider = true
+                            downloadFile(uri)
+                            return
+                        }
                     }
-
                     // Path can be returned, no need to make a "copy"
-                    pickiTCallbacks.PickiTonCompleteListener(returnedPath, wasDriveFile = false, wasUnknownProvider = false, wasSuccessful = true, Reason = "")
+                    pickiTCallbacks.PickiTonCompleteListener(
+                            returnedPath,
+                            wasDriveFile = false,
+                            wasUnknownProvider = false,
+                            wasSuccessful = true)
                 }
             }
         } else {
             //Todo: Test API <19
             returnedPath = Utils.getRealPathFromURI_BelowAPI19(context, uri)
-            pickiTCallbacks.PickiTonCompleteListener(returnedPath, wasDriveFile = false, wasUnknownProvider = false, wasSuccessful = true, Reason = "")
+            pickiTCallbacks.PickiTonCompleteListener(
+                    returnedPath,
+                    wasDriveFile = false,
+                    wasUnknownProvider = false,
+                    wasSuccessful = true)
         }
     }
 
     // Create a new file from the Uri that was selected
     private fun downloadFile(uri: Uri?) {
-        asyntask = DownloadAsyncTask(uri, context, this, mActivity)
-        asyntask.execute()
+        asyncTask = DownloadAsyncTask(uri, context, this, mActivity)
+        asyncTask.execute()
     }
 
     // End the "copying" of the file
     fun cancelTask() {
-        asyntask.cancel(true)
+        asyncTask.cancel(true)
         deleteTemporaryFile()
     }
 
@@ -129,19 +148,27 @@ class PickiT(private val context: Context, private val pickiTCallbacks: PickiTCa
         pickiTCallbacks.PickiTonProgressUpdate(progress)
     }
 
-    override fun PickiTonPostExecute(path: String?, wasDriveFile: Boolean, wasSuccessful: Boolean, reason: String?) {
+    override fun PickiTonPostExecute(path: String?, wasDriveFile: Boolean, wasSuccessful: Boolean, reason: String) {
         unknownProviderCalledBefore = false
-        if (wasSuccessful) {
-            if (isDriveFile) {
-                pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = true, wasUnknownProvider = false, wasSuccessful = true, Reason = "")
-            } else if (isFromUnknownProvider) {
-                pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = false, wasUnknownProvider = true, wasSuccessful = true, Reason = "")
+        when {
+            wasSuccessful -> {
+                when {
+                    isDriveFile ->
+                        pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = true, wasUnknownProvider = false, wasSuccessful = true)
+
+                    isFromUnknownProvider ->
+                        pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = false, wasUnknownProvider = true, wasSuccessful = true)
+
+                }
             }
-        } else {
-            if (isDriveFile) {
-                pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = true, wasUnknownProvider = false, wasSuccessful = false, Reason = reason)
-            } else if (isFromUnknownProvider) {
-                pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = false, wasUnknownProvider = true, wasSuccessful = false, Reason = reason)
+            else -> {
+                when {
+                    isDriveFile ->
+                        pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = true, wasUnknownProvider = false, wasSuccessful = false, Reason = reason)
+
+                    isFromUnknownProvider ->
+                        pickiTCallbacks.PickiTonCompleteListener(path, wasDriveFile = false, wasUnknownProvider = true, wasSuccessful = false, Reason = reason)
+                }
             }
         }
     }
@@ -149,28 +176,28 @@ class PickiT(private val context: Context, private val pickiTCallbacks: PickiTCa
     // Delete the temporary folder
     fun deleteTemporaryFile() {
         val folder = context.getExternalFilesDir("Temp")
-        if (folder != null) {
-            if (deleteDirectory(folder)) {
-                Log.i("PickiT ", " deleteDirectory was called")
-            }
+        folder?.let {
+            if (deleteDirectory(it)) Log.i("PickiT ", " deleteDirectory was called")
         }
     }
 
     private fun deleteDirectory(path: File?): Boolean {
-        if (path!!.exists()) {
-            val files = path.listFiles() ?: return false
-            for (file in files) {
-                if (file.isDirectory) {
-                    deleteDirectory(file)
-                } else {
-                    val wasSuccessful = file.delete()
-                    if (wasSuccessful) {
-                        Log.i("Deleted ", "successfully")
+        path?.let {
+            if (it.exists()) {
+                val files = it.listFiles() ?: return false
+
+                files.forEach { file ->
+                    if (file.isDirectory) {
+                        deleteDirectory(file)
+                    } else {
+                        val wasSuccessful = file.delete()
+                        if (wasSuccessful) {
+                            Log.i("Deleted ", "successfully")
+                        }
                     }
                 }
             }
-        }
-        return path.delete()
+            return it.delete()
+        } ?: return false
     }
-
 }

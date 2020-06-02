@@ -9,16 +9,16 @@ import android.provider.OpenableColumns
 import android.util.Log
 import java.io.*
 import java.lang.ref.WeakReference
-import java.util.*
 
 internal class DownloadAsyncTask(private val mUri: Uri?, context: Context, private val callback: CallBackTask, activity: Activity) : AsyncTask<Uri?, Int?, String?>() {
-    private val mContext = WeakReference(context)
-    private var pathPlusName: String? = null
+    private lateinit var pathPlusName: String
+    private lateinit var inputStream: InputStream
     private var folder: File? = null
     private var returnCursor: Cursor? = null
-    private var `is`: InputStream? = null
-    private var errorReason: String? = ""
+    private var errorReason: String = ""
+    private val mContext = WeakReference(context)
     private val activityReference = WeakReference(activity)
+
     override fun onPreExecute() {
         callback.PickiTonUriReturned()
     }
@@ -32,36 +32,35 @@ internal class DownloadAsyncTask(private val mUri: Uri?, context: Context, priva
     override fun doInBackground(vararg params: Uri?): String? {
         var file: File? = null
         var size = -1
-        val context = mContext.get()
-        if (context != null) {
-            folder = context.getExternalFilesDir("Temp")
-            returnCursor = context.contentResolver.query(mUri!!, null, null, null, null)
+        mContext.get()?.let {
+            folder = it.getExternalFilesDir("Temp")
+            returnCursor = it.contentResolver.query(mUri!!, null, null, null, null)
             try {
-                `is` = context.contentResolver.openInputStream(mUri)
+                inputStream = it.contentResolver.openInputStream(mUri)!!
             } catch (e: FileNotFoundException) {
                 e.printStackTrace()
             }
-        }
 
+        }
         // File is now available
         activityReference.get()?.runOnUiThread { callback.PickiTonPreExecute() }
         try {
-                try {
-                if (returnCursor != null && returnCursor!!.moveToFirst()) {
-                    if (mUri?.scheme != null) if (mUri.scheme == "content") {
-                        val sizeIndex = returnCursor?.getColumnIndex(OpenableColumns.SIZE)
-                        size = returnCursor?.getLong(sizeIndex!!)?.toInt()!!
-                    } else if (mUri.scheme == "file") {
-                        val ff = File(mUri.path)
-                        size = ff.length().toInt()
+            returnCursor?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    mUri?.scheme?.let {
+                        when (it) {
+                            "content" ->
+                                with(cursor){size = getLong(getColumnIndex(OpenableColumns.SIZE)).toInt()}
+                            "file" ->
+                                size = File(mUri.path.orEmpty()).length().toInt()
+                        }
                     }
                 }
-            } finally {
-                if (returnCursor != null) returnCursor?.close()
+                cursor.close()
             }
-            pathPlusName = folder.toString() + "/" + getFileName(mUri, mContext.get())
-            file = File(folder.toString() + "/" + getFileName(mUri, mContext.get()))
-            val bis = BufferedInputStream(`is`)
+            pathPlusName = "${folder.toString()}/${getFileName(mUri, mContext.get())}"
+            file = File(pathPlusName)
+            val bis = BufferedInputStream(inputStream)
             val fos = FileOutputStream(file)
             val data = ByteArray(1024)
             var total: Long = 0
@@ -83,29 +82,31 @@ internal class DownloadAsyncTask(private val mUri: Uri?, context: Context, priva
             fos.flush()
             fos.close()
         } catch (e: IOException) {
-            Log.e("Pickit IOException = ", e.message)
-            errorReason = e.message
+            Log.e("Pickit IOException = ", e.message.toString())
+            errorReason = e.message ?: ""
         }
         return file?.absolutePath
     }
 
     private fun getFileName(uri: Uri?, context: Context?): String? {
         var result: String? = null
-        if (uri?.scheme != null) {
-            if (uri.scheme == "content") {
+
+        uri?.scheme?.let {
+            if (it == "content") {
                 val cursor = context?.contentResolver?.query(uri, null, null, null, null)
-                if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                cursor?.let {
+                    if (cursor.moveToFirst()) {
+                        result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME))
+                    }
+                    cursor.close()
                 }
-                cursor?.close()
             }
         }
         if (result == null) {
             result = uri?.path
-            assert(result != null)
-            val cut = result?.lastIndexOf('/')
+            val cut = result?.lastIndexOf('/') ?: -1
             if (cut != -1) {
-                result = result?.substring(cut!!.plus(1))
+                result = result?.substring(cut.plus(1))
             }
         }
         return result
@@ -113,9 +114,16 @@ internal class DownloadAsyncTask(private val mUri: Uri?, context: Context, priva
 
     override fun onPostExecute(result: String?) {
         if (result == null) {
-            callback.PickiTonPostExecute(pathPlusName, wasDriveFile = true, wasSuccessful = false, reason = errorReason)
+            callback.PickiTonPostExecute(
+                    pathPlusName,
+                    wasDriveFile = true,
+                    wasSuccessful = false,
+                    reason = errorReason)
         } else {
-            callback.PickiTonPostExecute(pathPlusName, wasDriveFile = true, wasSuccessful = true, reason = "")
+            callback.PickiTonPostExecute(
+                    pathPlusName,
+                    wasDriveFile = true,
+                    wasSuccessful = true)
         }
     }
 }
