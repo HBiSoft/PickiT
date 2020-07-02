@@ -38,7 +38,34 @@ class Utils {
                         return Environment.getExternalStorageDirectory() + "/";
                     }
                 } else {
-                    return "storage" + "/" + docId.replace(":", "/");
+                    // Some devices does not allow access to the SD Card using the UID, for example /storage/6551-1152/folder/video.mp4
+                    // Instead, we first have to get the name of the SD Card, for example /storage/sdcard1/folder/video.mp4
+
+                    // We first have to check if the device allows this access
+                    if (new File("storage" + "/" + docId.replace(":", "/")).exists()){
+                        return "/storage/" + docId.replace(":", "/");
+                    }
+                    // If the file is not available, we have to get the name of the SD Card, have a look at SDUtils
+                    String[] availableExternalStorages = SDUtil.getStorageDirectories(context);
+                    String root = "";
+                    for (String s: availableExternalStorages) {
+                        if (split[1].startsWith("/")){
+                            root = s+split[1];
+                        }else {
+                            root = s+"/"+split[1];
+                        }
+                    }
+                    if (root.contains(type)){
+                        return "storage" + "/" + docId.replace(":", "/");
+                    }else{
+                        if (root.startsWith("/storage/")||root.startsWith("storage/")) {
+                            return root;
+                        }else if (root.startsWith("/")){
+                            return "/storage"+root;
+                        }else{
+                            return "/storage/"+root;
+                        }
+                    }
                 }
 
             }else if (isRawDownloadsDocument(uri)){
@@ -137,6 +164,32 @@ class Utils {
             return "";
         }
     }
+
+    @SuppressLint("SdCardPath")
+    @SuppressWarnings("SpellCheckingInspection")
+    private static String[] KNOWN_SD_PATHS = new String[]{
+            "/storage/sdcard0",
+            "/storage/sdcard1",
+            "/storage/extsdcard",
+            "/storage/sdcard0/external_sdcard",
+            "/mnt/extsdcard",
+            "/mnt/sdcard/external_sd",
+            "/mnt/sdcard/ext_sd",
+            "/mnt/external_sd",
+            "/mnt/media_rw/sdcard1",
+            "/removable/microsd",
+            "/mnt/emmc",
+            "/storage/external_SD",
+            "/storage/ext_sd",
+            "/storage/removable/sdcard1",
+            "/data/sdext",
+            "/data/sdext2",
+            "/data/sdext3",
+            "/data/sdext4",
+            "/sdcard1",
+            "/sdcard2",
+            "/storage/microsd"
+    };
 
     static String getRealPathFromURI_BelowAPI19(Context context, Uri contentUri) {
         String[] proj = {MediaStore.Video.Media.DATA};
