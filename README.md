@@ -2,22 +2,21 @@
 [![](https://jitpack.io/v/HBiSoft/PickiT.svg)](https://jitpack.io/#HBiSoft/PickiT)
 [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-PickiT-green.svg?style=flat )]( https://android-arsenal.com/details/1/7890 )
 
-An Android library that returns real paths from Uri's
+<p align="center">An Android library that returns real paths from Uri's</p>
 
-![pickiticon](https://user-images.githubusercontent.com/35602540/63160498-37d88780-c01e-11e9-95f7-d6fac239f53b.png)
+<p align="center"><img src="https://user-images.githubusercontent.com/35602540/63160498-37d88780-c01e-11e9-95f7-d6fac239f53b.png"></p>
 
 </br>
 
-**If you are using this library in one of your applications and would like to thank me:**
+**<p align="center">If you are using this library in one of your applications and would like to thank me:</p>**
 
-<a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+<p align="center"><a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a></p>
 
-Demo screenshot:
----
+<h2 align="center"><b>Demo screenshot:</b></h2>
 
-Download the demo app [here](https://github.com/HBiSoft/PickiT/releases/download/0.1.12/PickiTDemo.apk)
+<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/0.1.12/PickiTDemo.apk"><nobr>here</nobr></a></p>
 
-![pickiTDemo](https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png)
+<p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
 </br>
 
