@@ -122,7 +122,7 @@ public class PickiT implements CallBackTask{
 
     // Check different providers
     private boolean isDropBox(Uri uri) {
-        return String.valueOf(uri).toLowerCase().contains("content://com.dropbox.android");
+        return String.valueOf(uri).toLowerCase().contains("content://com.dropbox.");
     }
     private boolean isGoogleDrive(Uri uri) {
         return String.valueOf(uri).toLowerCase().contains("com.google.android.apps");
