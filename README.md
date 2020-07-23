@@ -121,6 +121,18 @@ public void onDestroy() {
 
 If you do not call `pickiT.deleteTemporaryFile();`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
 
+Manifest
+---
+If you are targeting SDK 29> add `android:requestLegacyExternalStorage="true"` in your manifest:
+```xml
+<manifest ... >
+  <application 
+    android:requestLegacyExternalStorage="true" 
+  </application>
+</manifest>
+```
+The reason for this is, in Android 10 file path access was removed and it returned in Android 11.
+<br>If you are targiting SDK 29> and you do not add this, you will get `EACCES (Permission denied)`
     
 Callback methods
 ---
