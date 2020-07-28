@@ -18,6 +18,16 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
+</br></br>
+
+<h2 align="center"><b>Take part in the poll</b></h2>
+
+<p align="center">Let other developers know what version you have tested:</p></br></br>
+
+<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2011/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2011" alt=""></a></p>
+<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2010/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2010" alt=""></a></p>
+<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%209%20and%20lower/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%209%20and%20lower" alt=""></a></p>
+
 </br>
 
 Add Pickit to your project:
