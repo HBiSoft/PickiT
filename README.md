@@ -109,7 +109,7 @@ If the selected file was from Dropbox,Google Drive, OneDrive or an unknown file 
 It is your responsibility to delete the file when you are done with it, by calling:
 
 ```java
-pickiT.deleteTemporaryFile();
+PickiT.deleteTemporaryFile(context);
 ```
 This can be done in `onBackPressed` and `onDestroy`, as shown below:
 
@@ -129,7 +129,7 @@ public void onDestroy() {
 }
 ```
 
-If you do not call `pickiT.deleteTemporaryFile();`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
+If you do not call `PickiT.deleteTemporaryFile(context);`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
 
 Manifest
 ---
