@@ -6,22 +6,21 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Environment;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.hbisoft.pickit.PickiT;
 import com.hbisoft.pickit.PickiTCallbacks;
@@ -38,6 +37,10 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //Views
     Button button_pick;
     TextView pickitTv, originalTv, originalTitle, pickitTitle;
+    ProgressBar mProgressBar;
+    TextView percentText;
+    ProgressDialog progressBar;
+    private AlertDialog mdialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +82,28 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
             }
         });
     }
+
+    //
+    //  PickiT Listeners
+    //
+    //  The listeners can be used to display a Dialog when a file is selected from Dropbox/Google Drive or OnDrive.
+    //  The listeners are callbacks from an AsyncTask that creates a new File of the original in /storage/emulated/0/Android/data/your.package.name/files/Temp/
+    //
+    //  PickiTonUriReturned()
+    //  When selecting a file from Google Drive, for example, the Uri will be returned before the file is available(if it has not yet been cached/downloaded).
+    //  Google Drive will first have to download the file before we have access to it.
+    //  This can be used to let the user know that we(the application), are waiting for the file to be returned.
+    //
+    //  PickiTonStartListener()
+    //  This will be call once the file creations starts and will only be called if the selected file is not local
+    //
+    //  PickiTonProgressUpdate(int progress)
+    //  This will return the progress of the file creation (in percentage) and will only be called if the selected file is not local
+    //
+    //  PickiTonCompleteListener(String path, boolean wasDriveFile)
+    //  If the selected file was from Dropbox/Google Drive or OnDrive, then this will be called after the file was created.
+    //  If the selected file was a local file then this will be called directly, returning the path as a String
+    //  Additionally, a boolean will be returned letting you know if the file selected was from Dropbox/Google Drive or OnDrive.
 
     private void openGallery() {
         //  first check if permissions was granted
@@ -143,33 +168,6 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         }
     }
 
-    //
-    //  PickiT Listeners
-    //
-    //  The listeners can be used to display a Dialog when a file is selected from Dropbox/Google Drive or OnDrive.
-    //  The listeners are callbacks from an AsyncTask that creates a new File of the original in /storage/emulated/0/Android/data/your.package.name/files/Temp/
-    //
-    //  PickiTonUriReturned()
-    //  When selecting a file from Google Drive, for example, the Uri will be returned before the file is available(if it has not yet been cached/downloaded).
-    //  Google Drive will first have to download the file before we have access to it.
-    //  This can be used to let the user know that we(the application), are waiting for the file to be returned.
-    //
-    //  PickiTonStartListener()
-    //  This will be call once the file creations starts and will only be called if the selected file is not local
-    //
-    //  PickiTonProgressUpdate(int progress)
-    //  This will return the progress of the file creation (in percentage) and will only be called if the selected file is not local
-    //
-    //  PickiTonCompleteListener(String path, boolean wasDriveFile)
-    //  If the selected file was from Dropbox/Google Drive or OnDrive, then this will be called after the file was created.
-    //  If the selected file was a local file then this will be called directly, returning the path as a String
-    //  Additionally, a boolean will be returned letting you know if the file selected was from Dropbox/Google Drive or OnDrive.
-
-    ProgressBar mProgressBar;
-    TextView percentText;
-    private AlertDialog mdialog;
-    ProgressDialog progressBar;
-
     @Override
     public void PickiTonUriReturned() {
         progressBar = new ProgressDialog(this);
@@ -180,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
 
     @Override
     public void PickiTonStartListener() {
-        if (progressBar.isShowing()){
+        if (progressBar.isShowing()) {
             progressBar.cancel();
         }
         final AlertDialog.Builder mPro = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.myDialog));
@@ -220,11 +218,11 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         }
 
         //  Check if it was a Drive/local/unknown provider file and display a Toast
-        if (wasDriveFile){
+        if (wasDriveFile) {
             showLongToast("Drive file was selected");
-        }else if (wasUnknownProvider){
+        } else if (wasUnknownProvider) {
             showLongToast("File was selected from unknown provider");
-        }else {
+        } else {
             showLongToast("Local file was selected");
         }
 
@@ -238,7 +236,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
             originalTv.setVisibility(View.VISIBLE);
             pickitTitle.setVisibility(View.VISIBLE);
             pickitTv.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             showLongToast("Error, please see the log..");
             pickitTv.setVisibility(View.VISIBLE);
             pickitTv.setText(reason);
@@ -253,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //  Deleting the temporary file if it exists
     @Override
     public void onBackPressed() {
-        pickiT.deleteTemporaryFile();
+        PickiT.deleteTemporaryFile(this);
         super.onBackPressed();
     }
 
@@ -264,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     public void onDestroy() {
         super.onDestroy();
         if (!isChangingConfigurations()) {
-            pickiT.deleteTemporaryFile();
+            PickiT.deleteTemporaryFile(this);
         }
     }
 

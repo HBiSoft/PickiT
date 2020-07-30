@@ -116,7 +116,7 @@ This can be done in `onBackPressed` and `onDestroy`, as shown below:
 ```java
 @Override
 public void onBackPressed() {
-    pickiT.deleteTemporaryFile();
+    PickiT.deleteTemporaryFile(this);
     super.onBackPressed();
 }
 
@@ -124,7 +124,7 @@ public void onBackPressed() {
 public void onDestroy() {
     super.onDestroy();
     if (!isChangingConfigurations()) {
-        pickiT.deleteTemporaryFile();
+        PickiT.deleteTemporaryFile(this);
     }
 }
 ```

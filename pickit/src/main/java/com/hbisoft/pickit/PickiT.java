@@ -103,20 +103,22 @@ public class PickiT implements CallBackTask{
     }
 
     // Create a new file from the Uri that was selected
-    private void downloadFile(Uri uri){
+    private void downloadFile(Uri uri) {
         asyntask = new DownloadAsyncTask(uri, context, this, mActivity);
         asyntask.execute();
     }
 
-    // End the "copying" of the file
-    public void cancelTask(){
-        if (asyntask!=null){
-            asyntask.cancel(true);
-            deleteTemporaryFile();
+    // Delete the temporary folder
+    public static void deleteTemporaryFile(Context context) {
+        File folder = context.getExternalFilesDir("Temp");
+        if (folder != null) {
+            if (deleteDirectory(folder)) {
+                Log.i("PickiT ", " deleteDirectory was called");
+            }
         }
     }
 
-    public boolean wasLocalFileSelected(Uri uri){
+    public boolean wasLocalFileSelected(Uri uri) {
         return !isDropBox(uri) && !isGoogleDrive(uri) && !isOneDrive(uri);
     }
 
@@ -165,18 +167,8 @@ public class PickiT implements CallBackTask{
         }
     }
 
-    // Delete the temporary folder
-    public void deleteTemporaryFile(){
-        File folder = context.getExternalFilesDir("Temp");
-        if (folder != null) {
-            if (deleteDirectory(folder)){
-                Log.i("PickiT "," deleteDirectory was called");
-            }
-        }
-    }
-
-    private boolean deleteDirectory(File path) {
-        if(path.exists()) {
+    private static boolean deleteDirectory(File path) {
+        if (path.exists()) {
             File[] files = path.listFiles();
             if (files == null) {
                 return false;
@@ -192,7 +184,14 @@ public class PickiT implements CallBackTask{
                 }
             }
         }
-        return(path.delete());
+        return (path.delete());
     }
 
+    // End the "copying" of the file
+    public void cancelTask() {
+        if (asyntask != null) {
+            asyntask.cancel(true);
+            deleteTemporaryFile(context);
+        }
+    }
 }
