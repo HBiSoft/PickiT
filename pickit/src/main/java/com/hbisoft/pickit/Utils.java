@@ -165,32 +165,6 @@ class Utils {
         }
     }
 
-    @SuppressLint("SdCardPath")
-    @SuppressWarnings("SpellCheckingInspection")
-    private static String[] KNOWN_SD_PATHS = new String[]{
-            "/storage/sdcard0",
-            "/storage/sdcard1",
-            "/storage/extsdcard",
-            "/storage/sdcard0/external_sdcard",
-            "/mnt/extsdcard",
-            "/mnt/sdcard/external_sd",
-            "/mnt/sdcard/ext_sd",
-            "/mnt/external_sd",
-            "/mnt/media_rw/sdcard1",
-            "/removable/microsd",
-            "/mnt/emmc",
-            "/storage/external_SD",
-            "/storage/ext_sd",
-            "/storage/removable/sdcard1",
-            "/data/sdext",
-            "/data/sdext2",
-            "/data/sdext3",
-            "/data/sdext4",
-            "/sdcard1",
-            "/sdcard2",
-            "/storage/microsd"
-    };
-
     static String getRealPathFromURI_BelowAPI19(Context context, Uri contentUri) {
         String[] proj = {MediaStore.Video.Media.DATA};
         CursorLoader loader = new CursorLoader(context, contentUri, proj, null, null, null);

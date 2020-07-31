@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //  Deleting the temporary file if it exists
     @Override
     public void onBackPressed() {
-        pickiT.deleteTemporaryFile();
+        pickiT.deleteTemporaryFile(this);
         super.onBackPressed();
     }
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     public void onDestroy() {
         super.onDestroy();
         if (!isChangingConfigurations()) {
-            pickiT.deleteTemporaryFile();
+            pickiT.deleteTemporaryFile(this);
         }
     }
 

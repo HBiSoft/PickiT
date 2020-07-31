@@ -54,6 +54,11 @@ class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
         Context context = mContext.get();
         if (context != null) {
             folder = context.getExternalFilesDir("Temp");
+            if (folder!= null && !folder.exists()) {
+                if (folder.mkdirs()) {
+                    Log.i("PickiT : ", "Temp folder createdd");
+                }
+            }
             returnCursor = context.getContentResolver().query(mUri, null, null, null, null);
             try {
                 is = context.getContentResolver().openInputStream(mUri);

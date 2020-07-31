@@ -35,6 +35,7 @@ public class PickiT implements CallBackTask{
             // Local file was selected
             else {
                 returnedPath = Utils.getRealPathFromURI_API19(context, uri);
+                Log.e("RETURNED -", ""+returnedPath);
 
                 //Get the file extension
                 final MimeTypeMap mime = MimeTypeMap.getSingleton();
@@ -67,6 +68,11 @@ public class PickiT implements CallBackTask{
                                 //Copy the file to the temporary folder
                                 downloadFile(uri);
                                 return;
+                            }else if (Utils.errorReason() != null && Utils.errorReason().equals("uri")){
+                                isFromUnknownProvider = true;
+                                //Copy the file to the temporary folder
+                                downloadFile(uri);
+                                return;
                             }
                         }
                     }
@@ -84,7 +90,7 @@ public class PickiT implements CallBackTask{
                     // Remember if the extension can't be found, it will not be added, but you will still be able to use the file
                     //Todo: Add checks for unknown file extensions
 
-                    if (!subStringExtension.equals(extensionFromMime) && uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+                    if (!subStringExtension.equals("jpeg") && !subStringExtension.equals(extensionFromMime) && uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
                         isFromUnknownProvider = true;
                         downloadFile(uri);
                         return;
@@ -112,7 +118,7 @@ public class PickiT implements CallBackTask{
     public void cancelTask(){
         if (asyntask!=null){
             asyntask.cancel(true);
-            deleteTemporaryFile();
+            deleteTemporaryFile(context);
         }
     }
 
@@ -166,7 +172,7 @@ public class PickiT implements CallBackTask{
     }
 
     // Delete the temporary folder
-    public void deleteTemporaryFile(){
+    public void deleteTemporaryFile(Context context){
         File folder = context.getExternalFilesDir("Temp");
         if (folder != null) {
             if (deleteDirectory(folder)){
