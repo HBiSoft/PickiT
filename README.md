@@ -14,7 +14,7 @@
 
 <h2 align="center"><b>Demo screenshot:</b></h2>
 
-<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/0.1.12/PickiTDemo.apk"><nobr>here</nobr></a></p>
+<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/0.1.14/PickiTDemo.apk"><nobr>here</nobr></a></p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
@@ -48,7 +48,7 @@ Then, add the dependency, in your app level build.gradle:
 
 ```java
 dependencies {
-    implementation 'com.github.HBiSoft:PickiT:0.1.13'
+    implementation 'com.github.HBiSoft:PickiT:0.1.14'
 }
 ```
     
@@ -109,14 +109,14 @@ If the selected file was from Dropbox,Google Drive, OneDrive or an unknown file 
 It is your responsibility to delete the file when you are done with it, by calling:
 
 ```java
-pickiT.deleteTemporaryFile();
+pickiT.deleteTemporaryFile(Context);
 ```
 This can be done in `onBackPressed` and `onDestroy`, as shown below:
 
 ```java
 @Override
 public void onBackPressed() {
-    pickiT.deleteTemporaryFile();
+    pickiT.deleteTemporaryFile(this);
     super.onBackPressed();
 }
 
@@ -124,12 +124,12 @@ public void onBackPressed() {
 public void onDestroy() {
     super.onDestroy();
     if (!isChangingConfigurations()) {
-        pickiT.deleteTemporaryFile();
+        pickiT.deleteTemporaryFile(this);
     }
 }
 ```
 
-If you do not call `pickiT.deleteTemporaryFile();`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
+If you do not call `pickiT.deleteTemporaryFile(Context);`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
 
 Manifest
 ---
