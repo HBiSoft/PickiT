@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.app.ActivityCompat;
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     @Override
-    public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
+    public void PickiTonCompleteListener(@Nullable String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
 
         if (mdialog != null && mdialog.isShowing()) {
             mdialog.cancel();
