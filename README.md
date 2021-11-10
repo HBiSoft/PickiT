@@ -14,7 +14,7 @@
 
 <h2 align="center"><b>Demo screenshot:</b></h2>
 
-<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/0.1.14/PickiTDemo.apk"><nobr>here</nobr></a></p>
+<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/2.0.1/PickiTDemo.apk"><nobr>here</nobr></a></p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
@@ -48,7 +48,7 @@ Then, add the dependency, in your app level build.gradle:
 
 ```java
 dependencies {
-    implementation 'com.github.HBiSoft:PickiT:0.1.14'
+    implementation 'com.github.HBiSoft:PickiT:2.0.1'
 }
 ```
     
