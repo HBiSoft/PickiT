@@ -84,7 +84,9 @@ public class SDUtil {
 
     private static String[] getAllSecondaryStorages() {
         if (!TextUtils.isEmpty(SECONDARY_STORAGES)) {
-            return SECONDARY_STORAGES.split(File.pathSeparator);
+            if (SECONDARY_STORAGES != null) {
+                return SECONDARY_STORAGES.split(File.pathSeparator);
+            }
         }
         return new String[0];
     }

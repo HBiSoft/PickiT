@@ -17,15 +17,15 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
 class DownloadAsyncTask extends AsyncTask<Uri, Integer, String> {
-    private Uri mUri;
-    private CallBackTask callback;
-    private WeakReference<Context> mContext;
+    private final Uri mUri;
+    private final CallBackTask callback;
+    private final WeakReference<Context> mContext;
     private String pathPlusName;
     private File folder;
     private Cursor returnCursor;
     private InputStream is = null;
     private String errorReason = "";
-    private WeakReference<Activity> activityReference;
+    private final WeakReference<Activity> activityReference;
 
     DownloadAsyncTask(Uri uri, Context context, CallBackTask callback, Activity activity) {
         this.mUri = uri;

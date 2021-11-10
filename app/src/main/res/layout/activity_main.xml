@@ -13,6 +13,7 @@
         android:textSize="18sp"
         android:textColor="@android:color/black"
         android:layout_marginTop="20dp"
+        android:textStyle="bold"
         android:id="@+id/originalTitle"
         android:visibility="invisible"/>
 
@@ -37,6 +38,7 @@
         android:textSize="18sp"
         android:textColor="@android:color/black"
         android:layout_marginTop="20dp"
+        android:textStyle="bold"
         android:id="@+id/pickitTitle"
         android:visibility="invisible"/>
 

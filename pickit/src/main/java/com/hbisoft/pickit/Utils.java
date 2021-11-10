@@ -176,7 +176,6 @@ class Utils {
         return result;
     }
 
-    @SuppressWarnings("TryFinallyCanBeTryWithResources")
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
         final String column = "_data";
@@ -198,7 +197,7 @@ class Utils {
 
 
     @SuppressWarnings("TryFinallyCanBeTryWithResources")
-    private static String getFilePath(Context context, Uri uri) {
+    public static String getFilePath(Context context, Uri uri) {
         Cursor cursor = null;
         final String[] projection = {MediaStore.Files.FileColumns.DISPLAY_NAME};
         try {
@@ -223,7 +222,7 @@ class Utils {
     }
 
 
-    private static boolean isDownloadsDocument(Uri uri) {
+    public static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 

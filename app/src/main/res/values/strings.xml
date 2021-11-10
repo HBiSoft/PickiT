@@ -3,4 +3,5 @@
     <string name="pick_file">Pick File</string>
     <string name="original_path"><u>Original Path</u></string>
     <string name="pickit_path"><u>PickiT Path</u></string>
+    <string name="multiple_files_selected">Multiple files selected</string>
 </resources>

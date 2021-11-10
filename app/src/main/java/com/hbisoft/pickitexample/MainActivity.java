@@ -3,11 +3,16 @@ package com.hbisoft.pickitexample;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -16,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -26,9 +32,11 @@ import android.widget.Toast;
 import com.hbisoft.pickit.PickiT;
 import com.hbisoft.pickit.PickiTCallbacks;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //Permissions
-    private static final int SELECT_VIDEO_REQUEST = 777;
     private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE = PERMISSION_REQ_ID_RECORD_AUDIO + 1;
 
@@ -66,17 +74,14 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     private void buttonClickEvent() {
-        button_pick.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openGallery();
+        button_pick.setOnClickListener(view -> {
+            openGallery();
 
-                //  Make TextView's invisible
-                originalTitle.setVisibility(View.INVISIBLE);
-                originalTv.setVisibility(View.INVISIBLE);
-                pickitTitle.setVisibility(View.INVISIBLE);
-                pickitTv.setVisibility(View.INVISIBLE);
-            }
+            //  Make TextView's invisible
+            originalTitle.setVisibility(View.INVISIBLE);
+            originalTv.setVisibility(View.INVISIBLE);
+            pickitTitle.setVisibility(View.INVISIBLE);
+            pickitTv.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -85,16 +90,19 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         if (checkSelfPermission()) {
             Intent intent;
             if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
             } else {
-                intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.INTERNAL_CONTENT_URI);
+                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI);
             }
             //  In this example we will set the type to video
             intent.setType("video/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
             intent.putExtra("return-data", true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+            }
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivityForResult(intent, SELECT_VIDEO_REQUEST);
+            activityResultLauncher.launch(intent);
         }
     }
 
@@ -110,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     //  Handle permissions
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //  Permissions was granted, open the gallery
@@ -122,28 +131,45 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SELECT_VIDEO_REQUEST) {
-            if (resultCode == RESULT_OK) {
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        //  Get path from PickiT (The path will be returned in PickiTonCompleteListener)
+                        //
+                        //  If the selected file is from Dropbox/Google Drive or OnDrive:
+                        //  Then it will be "copied" to your app directory (see path example below) and when done the path will be returned in PickiTonCompleteListener
+                        //  /storage/emulated/0/Android/data/your.package.name/files/Temp/tempDriveFile.mp4
+                        //
+                        //  else the path will directly be returned in PickiTonCompleteListener
 
-                //  Get path from PickiT (The path will be returned in PickiTonCompleteListener)
-                //
-                //  If the selected file is from Dropbox/Google Drive or OnDrive:
-                //  Then it will be "copied" to your app directory (see path example below) and when done the path will be returned in PickiTonCompleteListener
-                //  /storage/emulated/0/Android/data/your.package.name/files/Temp/tempDriveFile.mp4
-                //
-                //  else the path will directly be returned in PickiTonCompleteListener
-                pickiT.getPath(data.getData(), Build.VERSION.SDK_INT);
+                        ClipData clipData = Objects.requireNonNull(data).getClipData();
+                        if (clipData != null) {
+                            int numberOfFilesSelected = clipData.getItemCount();
+                            if (numberOfFilesSelected > 1) {
+                                pickiT.getMultiplePaths(clipData);
+                                StringBuilder allPaths = new StringBuilder("Multiple Files Selected:" + "\n");
+                                for(int i = 0; i < clipData.getItemCount(); i++) {
+                                    allPaths.append("\n\n").append(clipData.getItemAt(i).getUri());
+                                }
+                                originalTv.setText(allPaths.toString());
+                            }else {
+                                pickiT.getPath(clipData.getItemAt(0).getUri(), Build.VERSION.SDK_INT);
+                                originalTv.setText(String.valueOf(clipData.getItemAt(0).getUri()));
+                            }
+                        } else {
+                            pickiT.getPath(data.getData(), Build.VERSION.SDK_INT);
+                            originalTv.setText(String.valueOf(data.getData()));
+                        }
 
-                originalTv.setText(String.valueOf(data.getData()));
+                    }
+                }
 
-            }
-        }
-    }
+            });
 
-    //
     //  PickiT Listeners
     //
     //  The listeners can be used to display a Dialog when a file is selected from Dropbox/Google Drive or OnDrive.
@@ -180,20 +206,17 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
 
     @Override
     public void PickiTonStartListener() {
-        if (progressBar.isShowing()){
+        if (progressBar.isShowing()) {
             progressBar.cancel();
         }
         final AlertDialog.Builder mPro = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.myDialog));
         @SuppressLint("InflateParams") final View mPView = LayoutInflater.from(this).inflate(R.layout.dailog_layout, null);
         percentText = mPView.findViewById(R.id.percentText);
 
-        percentText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickiT.cancelTask();
-                if (mdialog != null && mdialog.isShowing()) {
-                    mdialog.cancel();
-                }
+        percentText.setOnClickListener(view -> {
+            pickiT.cancelTask();
+            if (mdialog != null && mdialog.isShowing()) {
+                mdialog.cancel();
             }
         });
 
@@ -212,37 +235,61 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         mProgressBar.setProgress(progress);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void PickiTonCompleteListener(String path, boolean wasDriveFile, boolean wasUnknownProvider, boolean wasSuccessful, String reason) {
-
         if (mdialog != null && mdialog.isShowing()) {
             mdialog.cancel();
         }
 
         //  Check if it was a Drive/local/unknown provider file and display a Toast
-        if (wasDriveFile){
+        if (wasDriveFile) {
             showLongToast("Drive file was selected");
-        }else if (wasUnknownProvider){
+        } else if (wasUnknownProvider) {
             showLongToast("File was selected from unknown provider");
-        }else {
+        } else {
             showLongToast("Local file was selected");
         }
 
         //  Chick if it was successful
         if (wasSuccessful) {
             //  Set returned path to TextView
-            pickitTv.setText(path);
+            if (path.contains("/proc/")) {
+                pickitTv.setText("Sub-directory inside Downloads was selected." + "\n" + " We will be making use of the /proc/ protocol." + "\n" + " You can use this path as you would normally." + "\n\n" + "PickiT path:" + "\n" + path);
+            } else {
+                pickitTv.setText(path);
+            }
 
             //  Make TextView's visible
             originalTitle.setVisibility(View.VISIBLE);
             originalTv.setVisibility(View.VISIBLE);
             pickitTitle.setVisibility(View.VISIBLE);
             pickitTv.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             showLongToast("Error, please see the log..");
             pickitTv.setVisibility(View.VISIBLE);
             pickitTv.setText(reason);
         }
+    }
+
+    @Override
+    public void PickiTonMultipleCompleteListener(ArrayList<String> paths, boolean wasSuccessful, String Reason) {
+        if (mdialog != null && mdialog.isShowing()) {
+            mdialog.cancel();
+        }
+        StringBuilder allPaths = new StringBuilder();
+        for (int i = 0; i < paths.size(); i++) {
+            allPaths.append("\n").append(paths.get(i)).append("\n");
+        }
+
+        //  Set returned path to TextView
+        pickitTv.setText(allPaths.toString());
+
+        //  Make TextView's visible
+        originalTitle.setVisibility(View.VISIBLE);
+        originalTv.setVisibility(View.VISIBLE);
+        pickitTitle.setVisibility(View.VISIBLE);
+        pickitTv.setVisibility(View.VISIBLE);
     }
 
 
