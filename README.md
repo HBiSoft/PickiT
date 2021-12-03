@@ -105,8 +105,8 @@ Dropbox, Google Drive, OneDrive and files from unknown file providers:
 
 You can check if the `Uri` is from Dropbox,Google Drive or OneDrive by calling:
 ```java
-if (pickiT.isDriveFile(uri)){
-    // Drive file selected
+if (!pickiT.wasLocalFileSelected(uri)){
+    // Drive file was selected
 }
 ```
 You can check if the `Uri` is from an unknown provider by calling:
