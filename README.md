@@ -8,9 +8,14 @@
 
 </br>
 
-**<p align="center">If you are using this library in one of your applications and would like to thank me:</p>**
+---
+
+**<p align="center"><b>I'VE SPENT A LOT OF TIME ON THIS PROJECT, IF YOU WANT TO THANK ME:</b></p>**
 
 <p align="center"><a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a></p>
+
+
+---
 
 <h2 align="center"><b>Demo screenshot:</b></h2>
 
