@@ -217,6 +217,41 @@ public class PickiT implements CallBackTask {
         }
     }
 
+    public boolean isUnknownProvider(Uri uri, int APILevel) {
+        String returnedPath = Utils.getRealPathFromURI_API19(context, uri);
+
+        final MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String subStringExtension = String.valueOf(returnedPath).substring(String.valueOf(returnedPath).lastIndexOf(".") + 1);
+        String extensionFromMime = mime.getExtensionFromMimeType(context.getContentResolver().getType(uri));
+
+        if (isOneDrive(uri) || isDropBox(uri) || isGoogleDrive(uri)) {
+            return false;
+        }else{
+            // Path is null
+            if (returnedPath == null || returnedPath.equals("")) {
+                if (uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+                    if (Utils.errorReason() != null && Utils.errorReason().equals("dataReturnedNull")) {
+                        return true;
+                    } else if (Utils.errorReason() != null && Utils.errorReason().contains("column '_data' does not exist")) {
+                        return true;
+                    } else if (Utils.errorReason() != null && Utils.errorReason().equals("uri")) {
+                        return true;
+                    }
+                }
+                return false;
+            }else {
+                if (!subStringExtension.equals("jpeg") && !subStringExtension.equals(extensionFromMime) && uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isDriveFile (Uri uri){
+        return isOneDrive(uri) || isDropBox(uri) || isGoogleDrive(uri);
+    }
+
     public boolean wasLocalFileSelected(Uri uri) {
         return !isDropBox(uri) && !isGoogleDrive(uri) && !isOneDrive(uri);
     }
@@ -256,7 +291,7 @@ public class PickiT implements CallBackTask {
                 pickiTCallbacks.PickiTonStartListener();
             }
         }else{
-            pickiTCallbacks.PickiTonUriReturned();
+            pickiTCallbacks.PickiTonStartListener();
         }
     }
 
