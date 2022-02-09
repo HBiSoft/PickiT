@@ -8,13 +8,18 @@
 
 </br>
 
-**<p align="center">If you are using this library in one of your applications and would like to thank me:</p>**
+---
+
+**<p align="center"><b>I'VE SPENT A LOT OF TIME ON THIS PROJECT, IF YOU WANT TO THANK ME:</b></p>**
 
 <p align="center"><a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a></p>
 
+
+---
+
 <h2 align="center"><b>Demo screenshot:</b></h2>
 
-<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/0.1.14/PickiTDemo.apk"><nobr>here</nobr></a></p>
+<p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/2.0.2/PickiTDemo.apk"><nobr>here</nobr></a></p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
@@ -48,7 +53,7 @@ Then, add the dependency, in your app level build.gradle:
 
 ```java
 dependencies {
-    implementation 'com.github.HBiSoft:PickiT:0.1.14'
+    implementation 'com.github.HBiSoft:PickiT:2.0.2'
 }
 ```
     
@@ -102,6 +107,21 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 Dropbox, Google Drive, OneDrive and files from unknown file providers:
 ---
+
+You can check if the `Uri` is from Dropbox,Google Drive or OneDrive by calling:
+```java
+if (!pickiT.wasLocalFileSelected(uri)){
+    // Drive file was selected
+}
+```
+You can check if the `Uri` is from an unknown provider by calling:
+```java
+if (pickiT.isUnknownProvider(uri, Build.VERSION.SDK_INT)){
+    // Uri is from unknown provider
+}
+```
+
+---
     
 If the selected file was from Dropbox,Google Drive, OneDrive or an unknown file provider, it will then be copied/created in</br> 
 `Internal Storage - Android - data - your.package.name - files - Temp`
@@ -130,6 +150,7 @@ public void onDestroy() {
 ```
 
 If you do not call `pickiT.deleteTemporaryFile(Context);`, the file will remain in the above mentioned folder and will be overwritten each time you select a new file from Dropbox,Google Drive, OneDrive or an unknown file provider.
+
 
 Manifest
 ---
