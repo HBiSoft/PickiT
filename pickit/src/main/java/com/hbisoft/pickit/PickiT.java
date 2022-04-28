@@ -173,6 +173,17 @@ public class PickiT implements CallBackTask {
                     //Todo: Add checks for unknown file extensions
 
                     if (!subStringExtension.equals("jpeg") && !subStringExtension.equals(extensionFromMime) && uri.getScheme() != null && uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+                        // First check if the file is available
+                        // With issue #48 the file is available
+                        try {
+                            File checkIfExist = new File(returnedPath);
+                            if (checkIfExist.exists()){
+                                pickiTCallbacks.PickiTonCompleteListener(returnedPath, false, false, true, "");
+                                return;
+                            }
+                        }catch (Exception e){
+                            //Ignore
+                        }
                         isFromUnknownProvider = true;
                         downloadFile(uri);
                         return;
