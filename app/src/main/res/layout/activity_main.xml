@@ -54,22 +54,35 @@
         android:id="@+id/pickitTv"
         android:visibility="invisible"/>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/button_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@color/colorPrimary">
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        android:weightSum="2">
 
         <Button
-            android:id="@+id/button_pick"
+            android:id="@+id/button_pick_video"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ripple_effect"
-            android:text="@string/pick_file"
+            android:text="Pick Video"
             android:textColor="@android:color/white"
-            tools:text="@string/pick_file" />
+            android:layout_weight="1"
+            />
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/button_pick_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_effect"
+            android:text="Pick Image"
+            android:textColor="@android:color/white"
+            android:layout_weight="1"
+            />
+
+    </LinearLayout>
 
 </RelativeLayout>

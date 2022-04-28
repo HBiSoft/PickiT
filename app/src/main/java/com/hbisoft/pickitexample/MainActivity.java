@@ -44,8 +44,9 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     PickiT pickiT;
 
     //Views
-    Button button_pick;
+    Button button_pick_video, button_pick_image;
     TextView pickitTv, originalTv, originalTitle, pickitTitle;
+    String videoImageRef = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,8 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     private void init() {
-        button_pick = findViewById(R.id.button_pick);
+        button_pick_video = findViewById(R.id.button_pick_video);
+        button_pick_image = findViewById(R.id.button_pick_image);
         pickitTv = findViewById(R.id.pickitTv);
         originalTv = findViewById(R.id.originalTv);
         originalTitle = findViewById(R.id.originalTitle);
@@ -74,8 +76,19 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
     }
 
     private void buttonClickEvent() {
-        button_pick.setOnClickListener(view -> {
-            openGallery();
+        button_pick_video.setOnClickListener(view -> {
+            videoImageRef = "video";
+            openGallery("video");
+
+            //  Make TextView's invisible
+            originalTitle.setVisibility(View.INVISIBLE);
+            originalTv.setVisibility(View.INVISIBLE);
+            pickitTitle.setVisibility(View.INVISIBLE);
+            pickitTv.setVisibility(View.INVISIBLE);
+        });
+        button_pick_image.setOnClickListener(view -> {
+            videoImageRef = "image";
+            openGallery("image");
 
             //  Make TextView's invisible
             originalTitle.setVisibility(View.INVISIBLE);
@@ -85,24 +98,44 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         });
     }
 
-    private void openGallery() {
+    private void openGallery(String videoOrImage) {
         //  first check if permissions was granted
         if (checkSelfPermission()) {
-            Intent intent;
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
-            } else {
-                intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI);
+            if (videoImageRef.equals("video")) {
+                videoImageRef = "";
+                Intent intent;
+                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+                } else {
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.INTERNAL_CONTENT_URI);
+                }
+                //  In this example we will set the type to video
+                intent.setType("video/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.putExtra("return-data", true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                }
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                activityResultLauncher.launch(intent);
+            }else{
+                videoImageRef = "";
+                Intent intent;
+                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                } else {
+                    intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                }
+                //  In this example we will set the type to video
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.putExtra("return-data", true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                }
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                activityResultLauncher.launch(intent);
             }
-            //  In this example we will set the type to video
-            intent.setType("video/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            intent.putExtra("return-data", true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-            }
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            activityResultLauncher.launch(intent);
         }
     }
 
@@ -122,7 +155,11 @@ public class MainActivity extends AppCompatActivity implements PickiTCallbacks {
         if (requestCode == PERMISSION_REQ_ID_WRITE_EXTERNAL_STORAGE) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //  Permissions was granted, open the gallery
-                openGallery();
+                if (videoImageRef.equals("video")) {
+                    openGallery("video");
+                }else{
+                    openGallery("image");
+                }
             }
             //  Permissions was not granted
             else {
