@@ -1,3 +1,10 @@
+**<p align="center">Creating and maintaining a library like this takes a lot of time.</br> If you would like to thank me, you can do so below:</p>**
+
+<p align="center"><a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a></p>
+
+---
+</br>
+
 # PickiT 
 [![](https://jitpack.io/v/HBiSoft/PickiT.svg)](https://jitpack.io/#HBiSoft/PickiT)
 [![Android Arsenal]( https://img.shields.io/badge/Android%20Arsenal-PickiT-green.svg?style=flat )]( https://android-arsenal.com/details/1/7890 )
@@ -8,15 +15,6 @@
 
 </br>
 
----
-
-**<p align="center"><b>If you want to thank me for this library, you can do so below:</b></p>**
-
-<p align="center"><a href="https://www.buymeacoffee.com/HBiSoft" target="_blank" ><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 164px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a></p>
-
-
----
-
 <h2 align="center"><b>Demo screenshot:</b></h2>
 
 <p align="center">Download the demo app  <a href="https://github.com/HBiSoft/PickiT/releases/download/2.0.5/PickiTDemo.apk"><nobr>here</nobr></a></p>
@@ -24,16 +22,6 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/35602540/63206870-1c708980-c0bd-11e9-96dc-374a8a434c0e.png"</p>
 
 </br></br>
-
-<h2 align="center"><b>Take part in the poll</b></h2>
-
-<p align="center">Let other developers know what version you have tested:</p></br></br>
-
-<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2011/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2011" alt=""></a></p>
-<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2010/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%2010" alt=""></a></p>
-<p align="center"><a href="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%209%20and%20lower/vote"><img src="https://api.gh-polls.com/poll/01EEAANG18KCS6TPFC5YVWKQGW/Android%209%20and%20lower" alt=""></a></p>
-
-</br>
 
 Add Pickit to your project:
 ---
