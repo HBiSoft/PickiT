@@ -6,7 +6,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.util.Log;
@@ -14,8 +13,6 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import static com.hbisoft.pickit.Utils.getFilePath;
 
 public class PickiT implements CallBackTask {
     private final Context context;
@@ -75,42 +72,33 @@ public class PickiT implements CallBackTask {
             }
             // File was selected from Downloads provider
             else if (docId !=null && docId.startsWith("msf")) {
-                String fileName = getFilePath(context, uri);
                 try {
-                    File file = new File(Environment.getExternalStorageDirectory().toString() + "/Download/"+ fileName);
-                    // If the file exists in the Downloads directory
-                    // we can return the path directly
-                    if (file.exists()){
-                        pickiTCallbacks.PickiTonCompleteListener(file.getAbsolutePath(), false, false, true, "");
-                    }
                     // The file is in a sub-directory in Downloads
                     // We will first try to make use of the /proc/ protocol
                     // if /proc/ doesn't work, or if there is any issue trying to get access to the file, it gets copied to the applications directory
-                    else {
-                        if (enableProc) {
-                            ParcelFileDescriptor parcelFileDescriptor;
-                            try {
-                                parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
-                                int fd = parcelFileDescriptor.getFd();
-                                int pid = android.os.Process.myPid();
-                                String mediaFile = "/proc/" + pid + "/fd/" + fd;
-                                File file1 = new File(mediaFile);
-                                if (file1.exists() && file1.canRead() && file1.canWrite()) {
-                                    pickiTCallbacks.PickiTonCompleteListener(file1.getAbsolutePath(), false, false, true, "");
-                                } else {
-                                    isMsfDownload = true;
-                                    downloadFile(uri);
-                                }
-                            } catch (Exception e) {
+                    if (enableProc) {
+                        ParcelFileDescriptor parcelFileDescriptor;
+                        try {
+                            parcelFileDescriptor = context.getContentResolver().openFileDescriptor(uri, "r");
+                            int fd = parcelFileDescriptor.getFd();
+                            int pid = android.os.Process.myPid();
+                            String mediaFile = "/proc/" + pid + "/fd/" + fd;
+                            File file1 = new File(mediaFile);
+                            if (file1.exists() && file1.canRead() && file1.canWrite()) {
+                                pickiTCallbacks.PickiTonCompleteListener(file1.getAbsolutePath(), false, false, true, "");
+                            } else {
                                 isMsfDownload = true;
                                 downloadFile(uri);
                             }
-                        } else {
+                        } catch (Exception e) {
                             isMsfDownload = true;
                             downloadFile(uri);
                         }
+                    } else {
+                        isMsfDownload = true;
+                        downloadFile(uri);
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     isMsfDownload = true;
                     downloadFile(uri);
                 }
